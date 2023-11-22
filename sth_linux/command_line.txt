@@ -1,0 +1,5 @@
+mkdir + folder_name: tao folder
+mv <duong_dan_hien_tai> <duong_dan_muon_di_chuyen_toi>: di chuyen file
+rm -rf <ten_file>: xoa file
+ls: xem cac file trong thu muc hien tai 
+pwd: lay duong dan hien tai
