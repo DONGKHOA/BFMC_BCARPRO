@@ -1,5 +1,21 @@
-mkdir + folder_name: tao folder
-mv <duong_dan_hien_tai> <duong_dan_muon_di_chuyen_toi>: di chuyen file
-rm -rf <ten_file>: xoa file
-ls: xem cac file trong thu muc hien tai 
-pwd: lay duong dan hien tai
+Ctrl + L: Xóa màn hình
+Nhấn mũi tên lên: lấy lệnh cũ
+history: xem lịch sử lệnh
+ifconfig: lấy ip
+Ctrl + C: thoát khỏi chương trình bị treo
+
+mkdir + folder_name: tạo folder
+mv <đường dẫn hiện tại> <đường dẫn muốn di chuyển tới>: di chuyển file
+rm -rf <ten_file>: xóa file
+ls: xem list các file
+tree: xem cây thư mục
+pwd: lấy đường dẫn hiện tại
+make: tạo file thực thi
+mv -i <tên cũ> <tên mới> : đổi tên
+cat <tên file> đọc một file [vd: cat main.c]
+DÙNG VIM ĐỂ CODE:
+    1. vim text.txt 
+    2. Nhấn phím I để vào chế độ chỉnh sửa
+    3. Viết
+    4. Nhấn phím ESC
+    5. Gõ :wq để thoát và lưu, :q để thoát
