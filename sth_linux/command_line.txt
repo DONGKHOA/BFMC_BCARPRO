@@ -1,4 +1,8 @@
 Ctrl + L: Xóa màn hình
+cd: di chuyển đến thư mục khác
+    1. cd ..: quay lại thư mục chứa thư mục hiện tại
+    2. cd ~: về thư mục gốc
+    3. cd -: quay lại thư mục cũ
 Nhấn mũi tên lên: lấy lệnh cũ
 history: xem lịch sử lệnh
 ifconfig: lấy ip
