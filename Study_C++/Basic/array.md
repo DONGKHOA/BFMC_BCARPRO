@@ -5,7 +5,8 @@
 
 **Syntax**:
 ```C++
-for (type variableName : arrayName) {
+for (type variableName : arrayName) 
+{
   // code block to be executed
 }
 ```
@@ -13,7 +14,8 @@ for (type variableName : arrayName) {
 **Example**:
 ```C++
 int myNumbers[5] = {10, 20, 30, 40, 50};
-for (int i : myNumbers) {
+for (int i : myNumbers) 
+{
   cout << i << "\n";
 }
 ```
@@ -142,4 +144,25 @@ int main()
 	cout << prefix[h2 + 1][c2 + 1] - prefix[h1][c2 + 1] - prefix[h2 + 1][c1] + prefix[h1][c1] << endl;
 	return 0;
 }
+```
+
+## Cấp phát động
+
+> Cấp phát bộ nhớ động (Dynamic memory allocation) là cách để yêu cầu bộ nhớ từ hệ điều hành khi cần thiết (thời điểm chương trình đang chạy). Cấp phát bộ nhớ động sử dụng vùng nhớ được quản lý bởi hệ điều hành được gọi là heap.
+
+- Để cấp phát vùng nhớ ta dùng toán tử `new`.
+
+**Example**:
+```C++
+int *ptr = new int;
+int *ptr1 = new int(10);
+```
+- Để giải phóng vùng nhớ ta dùng toán tử `delete`.
+
+**Example**:
+```C++
+int *ptr = new int;
+
+delete ptr;     // trả lại vùng nhớ ptr đang trỏ đến cho hệ điều hành
+ptr = nullptr;  // gán ptr thành con trỏ null
 ```
