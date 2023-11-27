@@ -110,5 +110,5 @@ def delete_files_in_directory(directory):
         except Exception as e:
             print(f"Không thể xóa {file_path}. Lỗi: {e}")
 
-# Gọi hàm để xóa tất cả các tệp trong thư mục
+
 delete_files_in_directory(output_path)
