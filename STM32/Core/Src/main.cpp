@@ -20,8 +20,11 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <iostream>
+using namespace std;
 
 /* USER CODE END Includes */
 
@@ -44,7 +47,29 @@
 SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
+class test{
+public:
+	uint8_t id;
+	void display(){
+		cout << id<< endl;
+	}
+};
 
+class test_{
+public:
+	uint8_t id;
+	void display(){
+		cout << id<< endl;
+	}
+};
+
+class test__{
+public:
+	uint8_t id;
+	void display(){
+		cout << id<< endl;
+	}
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,7 +115,9 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-
+test test1;
+test_ test2;
+test__ test3;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -100,6 +127,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  test1.id = 0;
+	  test2.id = 0;
+	  test3.id = 0;
+	  test1.display();
+	  test2.display();
+	  test3.display();
   }
   /* USER CODE END 3 */
 }
