@@ -9,6 +9,15 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include libs/Driver/STEERING_MOTOR/subdir.mk
+-include libs/Driver/SPEEDING_MOTOR/subdir.mk
+-include libs/Driver/BNO055/subdir.mk
+-include libs/App/PID/subdir.mk
+-include libs/App/IMU/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/subdir.mk
+-include Middlewares/Third_Party/FreeRTOS/Source/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
