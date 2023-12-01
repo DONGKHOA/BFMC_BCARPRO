@@ -41,4 +41,13 @@ SUBDIRS := \
 Core/Src \
 Core/Startup \
 Drivers/STM32F4xx_HAL_Driver/Src \
+Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
+Middlewares/Third_Party/FreeRTOS/Source \
+Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
+Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang \
+libs/App/IMU \
+libs/App/PID \
+libs/Driver/BNO055 \
+libs/Driver/SPEEDING_MOTOR \
+libs/Driver/STEERING_MOTOR \
 
