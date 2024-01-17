@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 #include "bno055.hpp"
 
@@ -19215,15 +19214,3 @@ BNO055_RETURN_FUNCTION_TYPE bno055_set_gyro_any_motion_awake_durn(u8 gyro_awake_
 
     return com_rslt;
 }
-=======
-/*
- * bno055.cpp
- *
- *  Created on: Dec 1, 2023
- *      Author: dongkhoa
- */
-
-
-
-
->>>>>>> a931fa1ad70fa35f9767a2852d080574df7c0804
