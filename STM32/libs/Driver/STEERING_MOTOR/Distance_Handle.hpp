@@ -1,10 +1,9 @@
-#ifndef _STEERING_SETUP_HPP_
-#define _STEERING_SETUP_HPP_
+#ifndef _DISTANCE_HANDLE_HPP_
+#define _DISTANCE_HANDLE_HPP_
 
-#include "stdint.h"
-#include "utility"
+#include <iostream>
 
-class Steering_Setup
+class Distance_Handle
 {
     private:
         const int SIZE = 2;
@@ -18,16 +17,14 @@ class Steering_Setup
         /* Steering_Roundabout */
         const float Steering_Roundabout = 13.29111828f;
     public:
-        /* Saturation of Distance */
-        float DistanceSaturation(float distance, const float sup_Distance, const float inf_Distance);
         /* Interpolate Distance to find corresponding Angle */
-        float InterpolateDistance(float distance, const float distanceValueP[], const float distanceValueN[], const float steeringValueP[], const float steeringValueN[], int size);
+        float Interpolate_Distance(float distance, const float distanceValueP[], const float distanceValueN[], const float steeringValueP[], const float steeringValueN[], int size);
         /*- Normal lane -*/
-        float SetSteering(float distance);
+        float Read_Steering(float distance);
         /*- Intersection -*/
-        float SetSteering_intersection(float steering);
+        float ReadSteering_intersection();
         /*- Roundabout -*/
-        float SetSteering_Roundabout(float steering);
+        float ReadSteering_Roundabout();
         /* Coefficient for Distance */
         const float distanceValueP[2] = {7.0, 10.0};
         const float distanceValueN[2] = {-7.0, -10.0};

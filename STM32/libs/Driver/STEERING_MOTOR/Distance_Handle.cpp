@@ -1,19 +1,6 @@
-#include "Steering_Setup.hpp"
+#include "Distance_Handle.hpp"
 
-float Steering_Setup:: DistanceSaturation(float distance, const float sup_Distance, const float inf_Distance)
-{
-    if (distance <= sup_Distance)
-    {
-        return 0;
-    }
-    if (distance >= inf_Distance)
-    {
-        return 0;
-    }
-    return distance;
-};
-
-float Steering_Setup:: InterpolateDistance(float distance, const float distanceValueP[], const float distanceValueN[], const float steeringValueP[], const float steeringValueN[], int size)
+float Distance_Handle:: Interpolate_Distance(float distance, const float distanceValueP[], const float distanceValueN[], const float steeringValueP[], const float steeringValueN[], int size)
 {
     float steering;
     if (distance > 0)
@@ -49,10 +36,20 @@ float Steering_Setup:: InterpolateDistance(float distance, const float distanceV
     if (distance <= distanceValueN[size - 1])
         return steeringValueN[size - 1];        
 };
-float Steering_Setup:: SetSteering(float distance)
+
+float Distance_Handle:: Read_Steering(float distance)
 {
     float steering;
-    distance = DistanceSaturation(distance, sup_Distance, inf_Distance);
-    steering = InterpolateDistance(distance, distanceValueP, distanceValueN, steeringValueP, steeringValueN, SIZE);
+    steering = Interpolate_Distance(distance, distanceValueP, distanceValueN, steeringValueP, steeringValueN, SIZE);
     return steering;
+};
+
+float Distance_Handle:: ReadSteering_intersection()
+{
+    return Steering_Intersection;
+}
+
+float Distance_Handle:: ReadSteering_Roundabout()
+{
+    return Steering_Roundabout;
 }
