@@ -54,5 +54,9 @@
         "xtr1common": "cpp",
         "xutility": "cpp"
     },
+<<<<<<< HEAD
+    "docwriter.style": "Doxygen"
+=======
     "cmake.configureOnOpen": false
+>>>>>>> dev/tkhoa
 }
