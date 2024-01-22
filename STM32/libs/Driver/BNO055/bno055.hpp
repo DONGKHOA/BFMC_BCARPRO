@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 0f1e7b3a7d0ebfbb817f23d2edaa1856b4bb5d91
 #ifndef __BNO055_H__
 #define __BNO055_H__
 
@@ -8097,6 +8100,7 @@ BNO055_RETURN_FUNCTION_TYPE bno055_get_gyro_any_motion_awake_durn(u8 *gyro_awake
 BNO055_RETURN_FUNCTION_TYPE bno055_set_gyro_any_motion_awake_durn(u8 gyro_awake_durn_u8);
 
 #endif
+<<<<<<< HEAD
 /*
  * bno055.hpp
  *
@@ -8112,3 +8116,5 @@ BNO055_RETURN_FUNCTION_TYPE bno055_set_gyro_any_motion_awake_durn(u8 gyro_awake_
 
 
 #endif /* DRIVER_BNO055_BNO055_HPP_ */
+=======
+>>>>>>> 0f1e7b3a7d0ebfbb817f23d2edaa1856b4bb5d91
