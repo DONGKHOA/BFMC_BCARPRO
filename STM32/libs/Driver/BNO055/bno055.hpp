@@ -242,7 +242,7 @@ typedef unsigned long int u64; /**< used for unsigned 64bit */
     define the data types manually
 #endif
 #endif
-#endif
+#endif 
 
 /***************************************************************/
 /**\name    BUS READ AND WRITE FUNCTIONS           */
