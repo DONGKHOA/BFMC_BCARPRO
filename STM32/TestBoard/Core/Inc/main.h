@@ -59,12 +59,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define INIT_BLDC_Pin GPIO_PIN_1
-#define INIT_BLDC_GPIO_Port GPIOC
+#define INIT_MOTOR_BLDC_Pin GPIO_PIN_1
+#define INIT_MOTOR_BLDC_GPIO_Port GPIOC
+#define SPI_RAS_SCK_Pin GPIO_PIN_5
+#define SPI_RAS_SCK_GPIO_Port GPIOA
+#define SPI_RAS_MISO_Pin GPIO_PIN_6
+#define SPI_RAS_MISO_GPIO_Port GPIOA
+#define SPI_RAS_MOSI_Pin GPIO_PIN_7
+#define SPI_RAS_MOSI_GPIO_Port GPIOA
 #define LED_INIT_BLDC_Pin GPIO_PIN_4
 #define LED_INIT_BLDC_GPIO_Port GPIOC
 #define ECHO_3_Pin GPIO_PIN_5
 #define ECHO_3_GPIO_Port GPIOC
+#define MOTOR_BLDC_Pin GPIO_PIN_0
+#define MOTOR_BLDC_GPIO_Port GPIOB
 #define ECHO_2_Pin GPIO_PIN_2
 #define ECHO_2_GPIO_Port GPIOB
 #define TRIG_2_Pin GPIO_PIN_12

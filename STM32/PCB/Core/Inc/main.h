@@ -59,32 +59,54 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LED_INIT_BLDC_Pin GPIO_PIN_0
+#define LED_INIT_BLDC_GPIO_Port GPIOC
 #define INIT_BLDC_Pin GPIO_PIN_1
 #define INIT_BLDC_GPIO_Port GPIOC
-#define LED_INIT_BLDC_Pin GPIO_PIN_4
-#define LED_INIT_BLDC_GPIO_Port GPIOC
-#define ECHO_3_Pin GPIO_PIN_5
-#define ECHO_3_GPIO_Port GPIOC
-#define ECHO_2_Pin GPIO_PIN_2
-#define ECHO_2_GPIO_Port GPIOB
-#define TRIG_2_Pin GPIO_PIN_12
-#define TRIG_2_GPIO_Port GPIOB
-#define TRIG_3_Pin GPIO_PIN_6
+#define SPI_PS2_MISO_Pin GPIO_PIN_2
+#define SPI_PS2_MISO_GPIO_Port GPIOC
+#define SPI_PS2_MOSI_Pin GPIO_PIN_3
+#define SPI_PS2_MOSI_GPIO_Port GPIOC
+#define BUZZER_Pin GPIO_PIN_1
+#define BUZZER_GPIO_Port GPIOA
+#define LED_LEFT_Pin GPIO_PIN_2
+#define LED_LEFT_GPIO_Port GPIOA
+#define LED_RIGHT_Pin GPIO_PIN_3
+#define LED_RIGHT_GPIO_Port GPIOA
+#define SPI_RAS_SCK_Pin GPIO_PIN_5
+#define SPI_RAS_SCK_GPIO_Port GPIOA
+#define SPI_RAS_MISO_Pin GPIO_PIN_6
+#define SPI_RAS_MISO_GPIO_Port GPIOA
+#define SPI_RAS_MOSI_Pin GPIO_PIN_7
+#define SPI_RAS_MOSI_GPIO_Port GPIOA
+#define TRIG_3_Pin GPIO_PIN_5
 #define TRIG_3_GPIO_Port GPIOC
-#define ECHO_4_Pin GPIO_PIN_8
-#define ECHO_4_GPIO_Port GPIOC
-#define TRIG_4_Pin GPIO_PIN_9
+#define MOTOR_BLDC_Pin GPIO_PIN_0
+#define MOTOR_BLDC_GPIO_Port GPIOB
+#define TRIG_1_Pin GPIO_PIN_2
+#define TRIG_1_GPIO_Port GPIOB
+#define SPI_PS2_SCK_Pin GPIO_PIN_10
+#define SPI_PS2_SCK_GPIO_Port GPIOB
+#define ECHO_1_Pin GPIO_PIN_12
+#define ECHO_1_GPIO_Port GPIOB
+#define ECHO_3_Pin GPIO_PIN_6
+#define ECHO_3_GPIO_Port GPIOC
+#define TRIG_4_Pin GPIO_PIN_8
 #define TRIG_4_GPIO_Port GPIOC
+#define ECHO_4_Pin GPIO_PIN_9
+#define ECHO_4_GPIO_Port GPIOC
 #define MOTOR_STEERING_Pin GPIO_PIN_8
 #define MOTOR_STEERING_GPIO_Port GPIOA
 #define MOTOR_CAM_Pin GPIO_PIN_9
 #define MOTOR_CAM_GPIO_Port GPIOA
-#define ECHO_1_Pin GPIO_PIN_11
-#define ECHO_1_GPIO_Port GPIOA
-#define TRIG_1_Pin GPIO_PIN_12
-#define TRIG_1_GPIO_Port GPIOA
-#define SPI_CS_RAS_Pin GPIO_PIN_6
-#define SPI_CS_RAS_GPIO_Port GPIOB
+#define TRIG_2_Pin GPIO_PIN_11
+#define TRIG_2_GPIO_Port GPIOA
+#define ECHO_2_Pin GPIO_PIN_12
+#define ECHO_2_GPIO_Port GPIOA
+#define SPI_PS2_CS_Pin GPIO_PIN_4
+#define SPI_PS2_CS_GPIO_Port GPIOB
+#define SPI_RAS_CS_Pin GPIO_PIN_6
+#define SPI_RAS_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
