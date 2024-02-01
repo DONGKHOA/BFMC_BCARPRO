@@ -29,7 +29,7 @@ struct button
     uint32_t debouncingTimer;
     GPIO_TypeDef *buttonPort;
 
-
+    void (* handle)(button * const button_p)
 };
 
 /**********************
