@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bldc_motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,7 +56,7 @@ osThreadId controlSpeedingHandle;
 osThreadId controlSteeringHandle;
 osThreadId controlCameraTaHandle;
 /* USER CODE BEGIN PV */
-
+bldc_motor_t *bldc_motor_0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -118,7 +118,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-
+  bldc_motor_0 = BLDC_MOTOR_Create(&htim1, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */

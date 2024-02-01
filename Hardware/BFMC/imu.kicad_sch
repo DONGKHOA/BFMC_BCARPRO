@@ -653,7 +653,7 @@
   (symbol (lib_id "Device:R_Small_US") (at 99.06 88.9 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2ba80af4-c738-4a68-8faf-8e33d866699e)
-    (property "Reference" "R12" (at 101.6 87.63 0)
+    (property "Reference" "R14" (at 101.6 87.63 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10k/1%" (at 101.6 90.17 0)
@@ -673,7 +673,7 @@
     (instances
       (project "BFMC"
         (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b/9adc05c6-e511-42a2-8bd8-d353e25d9132"
-          (reference "R12") (unit 1)
+          (reference "R14") (unit 1)
         )
       )
       (project "Brightness_Meter"
@@ -761,7 +761,7 @@
   (symbol (lib_id "Device:R_Small_US") (at 77.47 90.17 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 5912dfb4-e691-4d16-b47c-d8c3e4d46eba)
-    (property "Reference" "R11" (at 80.01 88.9 0)
+    (property "Reference" "R13" (at 80.01 88.9 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "10k/1%" (at 80.01 91.44 0)
@@ -781,7 +781,7 @@
     (instances
       (project "BFMC"
         (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b/9adc05c6-e511-42a2-8bd8-d353e25d9132"
-          (reference "R11") (unit 1)
+          (reference "R13") (unit 1)
         )
       )
       (project "Brightness_Meter"
