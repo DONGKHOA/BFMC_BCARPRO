@@ -1,8 +1,6 @@
 /*
- * fuzzy_control.h
+ * @file fuzzy_control.h
  *
- *  Created on: Feb 1, 2024
- *      Author: dongkhoa
  */
 
 #ifndef MIDDLEWARES_FUZZY_CONTROL_FUZZY_CONTROL_H_

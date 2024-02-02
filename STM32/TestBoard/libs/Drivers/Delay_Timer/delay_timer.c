@@ -3,15 +3,23 @@
  *
  */
 
+/*********************
+ *      INCLUDES
+ *********************/
+
 #include "delay_timer.h"
 
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+
 /**
- * The function takes a pointer to a timer handle and a time in microseconds as arguments. It starts
- * the timer, sets the counter to zero, and waits until the counter reaches the time in microseconds.
- * Then it stops the timer
- *
- * @param htim pointer to the timer handle
- * @param time_us the time in microseconds that you want to delay
+ * The function DELAY_Tim_Us is used to introduce a delay in microseconds using a timer.
+ * 
+ * @param htim The parameter `htim` is a pointer to a `TIM_HandleTypeDef` structure. This structure
+ * contains the configuration and state information for a specific timer instance. It is used to
+ * control and interact with the timer hardware.
+ * @param time_us The parameter "time_us" represents the desired delay time in microseconds.
  */
 void DELAY_Tim_Us(TIM_HandleTypeDef *htim, uint16_t time_us)
 {
@@ -22,11 +30,15 @@ void DELAY_Tim_Us(TIM_HandleTypeDef *htim, uint16_t time_us)
     HAL_TIM_Base_Stop(htim);
 }
 
+
 /**
- * A function that delays the program for a certain amount of time.
- *
- * @param htim pointer to the timer handle
- * @param time_ms The time in milliseconds to delay.
+ * The function DELAY_Tim_Ms is used to introduce a delay in milliseconds using a timer.
+ * 
+ * @param htim The parameter `htim` is a pointer to a `TIM_HandleTypeDef` structure. This structure is
+ * typically used to configure and control a timer peripheral in a microcontroller. It contains various
+ * fields such as the timer instance, prescaler value, counter mode, and other settings.
+ * @param time_ms The parameter "time_ms" is the delay time in milliseconds. It specifies the amount of
+ * time the function should wait before returning.
  */
 void DELAY_Tim_Ms(TIM_HandleTypeDef *htim, uint16_t time_ms)
 {
