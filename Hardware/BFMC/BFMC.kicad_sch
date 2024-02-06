@@ -1,0 +1,167 @@
+(kicad_sch (version 20230121) (generator eeschema)
+
+  (uuid a702f17a-d8b6-4710-aaf3-998facd86d1b)
+
+  (paper "A4")
+
+  (lib_symbols
+  )
+
+
+  (sheet (at 40.64 77.47) (size 31.75 22.86) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 19424447-1106-4fb8-861c-356eb2a35dbf)
+    (property "Sheetname" "POWER" (at 40.64 76.7584 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "power.kicad_sch" (at 40.64 100.9146 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "2"))
+      )
+    )
+  )
+
+  (sheet (at 107.95 24.13) (size 40.64 30.48) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 2a5ab720-3dc6-4a7d-a039-231608159b55)
+    (property "Sheetname" "RAS" (at 107.95 23.4184 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "ras.kicad_sch" (at 107.95 55.1946 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "4"))
+      )
+    )
+  )
+
+  (sheet (at 196.85 80.01) (size 26.67 20.32) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 3af803e7-83b8-4d09-a2cc-b1a832fbea4c)
+    (property "Sheetname" "HC-SR04" (at 196.85 79.2984 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "hc_sr04.kicad_sch" (at 196.85 100.9146 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "7"))
+      )
+    )
+  )
+
+  (sheet (at 109.22 121.92) (size 40.64 33.02) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 78ea48cd-a304-4102-a0a4-f06819e50a20)
+    (property "Sheetname" "PS2" (at 109.22 121.2084 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "ps2.kicad_sch" (at 109.22 155.5246 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "10"))
+      )
+    )
+  )
+
+  (sheet (at 196.85 53.34) (size 26.67 20.32) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid 9adc05c6-e511-42a2-8bd8-d353e25d9132)
+    (property "Sheetname" "IMU" (at 196.85 52.6284 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "imu.kicad_sch" (at 196.85 74.2446 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "6"))
+      )
+    )
+  )
+
+  (sheet (at 107.95 63.5) (size 41.91 46.99) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid bfc036b6-ef93-41ac-a458-d2f6903ee38e)
+    (property "Sheetname" "STM32" (at 107.95 62.7884 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "stm32.kicad_sch" (at 107.95 111.0746 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "3"))
+      )
+    )
+  )
+
+  (sheet (at 196.85 26.67) (size 26.67 20.32) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid c4165175-c24d-4996-a606-be543c2429f2)
+    (property "Sheetname" "MOTOR" (at 196.85 25.9584 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "motor.kicad_sch" (at 196.85 47.5746 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "5"))
+      )
+    )
+  )
+
+  (sheet (at 196.85 134.62) (size 26.67 20.32) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid c91c3564-35bd-4eac-9426-cc808a6c8173)
+    (property "Sheetname" "LED_BUZZER" (at 196.85 133.9084 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "led_buzzer.kicad_sch" (at 196.85 155.5246 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "9"))
+      )
+    )
+  )
+
+  (sheet (at 196.85 106.68) (size 26.67 20.32) (fields_autoplaced)
+    (stroke (width 0.1524) (type solid))
+    (fill (color 0 0 0 0.0000))
+    (uuid e7981f93-35be-44ef-bd06-6806d222356b)
+    (property "Sheetname" "FAN" (at 196.85 105.9684 0)
+      (effects (font (size 1.27 1.27)) (justify left bottom))
+    )
+    (property "Sheetfile" "fan.kicad_sch" (at 196.85 127.5846 0)
+      (effects (font (size 1.27 1.27)) (justify left top))
+    )
+    (instances
+      (project "BFMC"
+        (path "/a702f17a-d8b6-4710-aaf3-998facd86d1b" (page "8"))
+      )
+    )
+  )
+
+  (sheet_instances
+    (path "/" (page "1"))
+  )
+)
