@@ -26,8 +26,8 @@ extern "C" {
 
 extern I2C_HandleTypeDef hi2c1;
 uint16_t error;
-Struct_MPU6050 MPU6050;
-Struct_Angle Angle;
+Struct_MPU6050_t MPU6050;
+Struct_Angle_t Angle;
 
 static float LSB_Sensitivity_ACC;
 static float LSB_Sensitivity_GYRO;
@@ -49,7 +49,7 @@ typedef struct _MPU6050{
 	float gyro_x;
 	float gyro_y;
 	float gyro_z;
-}Struct_MPU6050;
+}Struct_MPU6050_t;
 
 
 
@@ -75,7 +75,7 @@ typedef struct _Angle{
     float Filt_roll;
 	float Filt_pitch;
 	float Filt_yaw;
-}Struct_Angle;
+}Struct_Angle_t;
 
 
 

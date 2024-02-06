@@ -28,7 +28,7 @@ void MPU6050_Initialization(void)
 	MPU6050_Readbyte(MPU6050_WHO_AM_I, &who_am_i);
 	if(who_am_i == 0x68)
 	{
-		error = 20;
+		error = 20; 
 	}
 	else
 	{
@@ -95,7 +95,7 @@ void MPU6050_Initialization(void)
 //	printf("MPU6050 setting is finished\n");
 }
 
-void MPU6050_Get6AxisRawData(Struct_MPU6050* mpu6050)
+void MPU6050_Get6AxisRawData(Struct_MPU6050_t* mpu6050)
 {
 	uint8_t data[14];
 	MPU6050_Readbytes(MPU6050_ACCEL_XOUT_H, 14, data);
@@ -145,7 +145,7 @@ void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 	}
 }
 /*Convert Unit. acc_raw -> g, gyro_raw -> degree per second*/
-void MPU6050_DataConvert(Struct_MPU6050* mpu6050)
+void MPU6050_DataConvert(Struct_MPU6050_t* mpu6050)
 {
 	//printf("LSB_Sensitivity_GYRO: %f, LSB_Sensitivity_ACC: %f\n",LSB_Sensitivity_GYRO,LSB_Sensitivity_ACC);
 	mpu6050->acc_x = mpu6050->acc_x_raw / LSB_Sensitivity_ACC;
@@ -184,7 +184,7 @@ int MPU6050_DataReady(void)
 	return HAL_GPIO_ReadPin(MPU6050_INT_PORT, MPU6050_INT_PIN);
 }
 
-void MPU6050_ProcessData(Struct_MPU6050* mpu6050)
+void MPU6050_ProcessData(Struct_MPU6050_t* mpu6050)
 {
 	MPU6050_Get6AxisRawData(mpu6050);
 	MPU6050_DataConvert(mpu6050);
