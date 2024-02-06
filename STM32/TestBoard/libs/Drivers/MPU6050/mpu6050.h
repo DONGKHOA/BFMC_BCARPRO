@@ -1,11 +1,15 @@
 #ifndef __DRIVERS_IMU_MPU6050_H_
 #define __DRIVERS_IMU_MPU6050_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*********************
+ *      INCLUDES
+ *********************/
 
 #include "main.h"
+
+/*********************
+ *      DEFINES
+ *********************/
 
 #define MPU6050_ADDR 0xD0
 #define MPU6050_SMPRT_DIV 0X19
@@ -24,10 +28,15 @@ extern "C" {
 
 #define gn 9.80665f
 
+/**********************
+ *      TYPEDEFS
+ **********************/
+
 extern I2C_HandleTypeDef hi2c1;
 uint16_t error;
-Struct_MPU6050_t MPU6050;
-Struct_Angle_t Angle;
+struct_MPU6050_t MPU6050;
+struct_Angle_t Angle;
+typedef struct mpu_6050 mpu_6050_t;
 
 static float LSB_Sensitivity_ACC;
 static float LSB_Sensitivity_GYRO;
@@ -49,7 +58,7 @@ typedef struct _MPU6050{
 	float gyro_x;
 	float gyro_y;
 	float gyro_z;
-}Struct_MPU6050_t;
+} struct_MPU6050_t;
 
 
 
@@ -75,24 +84,33 @@ typedef struct _Angle{
     float Filt_roll;
 	float Filt_pitch;
 	float Filt_yaw;
-}Struct_Angle_t;
+} struct_Angle_t;
 
+struct mpu_6050
+{
+    direction_mpu6050_t direction;
+    TIM_HandleTypeDef *timer_p;
+    uint32_t timChannel;
+	I2C_HandleTypeDef *hi2c;
+};
+/**********************
+ *     OPERATION
+ **********************/
 
+void IMU_Init(mpu_6050_t * const mpu_p, TIM_HandleTypeDef *timer_p, uint32_t timChannel, I2C_HandleTypeDef *hi2c);
+mpu_6050_t *IMU_Create(TIM_HandleTypeDef * timer_p, uint32_t timChannel, I2C_HandleTypeDef *hi2c);
+void IMU_Destroy(mpu_6050_t * const mpu_p);
 
-
-void CalculateAccAngle(Struct_Angle* Angle, Struct_MPU6050* MPU6050);
+void CalculateAccAngle(struct_Angle_t* Angle, struct_MPU6050_t* MPU6050);
 void MPU6050_Writebyte(uint8_t reg_addr, uint8_t val);
 void MPU6050_Writebytes(uint8_t reg_addr, uint8_t len, uint8_t* data);
 void MPU6050_Readbyte(uint8_t reg_addr, uint8_t* data);
 void MPU6050_Readbytes(uint8_t reg_addr, uint8_t len, uint8_t* data);
 void MPU6050_Initialization(void);
-void MPU6050_Get6AxisRawData(Struct_MPU6050* mpu6050);
+void MPU6050_Get6AxisRawData(struct_MPU6050_t* mpu6050);
 int MPU6050_DataReady(void);
 void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC);
-void MPU6050_DataConvert(Struct_MPU6050* mpu6050);
-void MPU6050_ProcessData(Struct_MPU6050* mpu6050);
+void MPU6050_DataConvert(struct_MPU6050_t* mpu6050);
+void MPU6050_ProcessData(struct_MPU6050_t* mpu6050);
 
-#ifdef __cplusplus
-}
-#endif
-#endif
+#endif 

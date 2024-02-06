@@ -95,7 +95,7 @@ void SR04_Init(SR04Driver_t *sr04_p, TIM_HandleTypeDef *timer_p, GPIO_TypeDef *G
 /**********************
  *     OPERATION
  **********************/
-
+ 
 SR04Driver_t *SR04_Create(TIM_HandleTypeDef *timer_p, 
                             GPIO_TypeDef *trigPort, uint16_t trigPin,
                             GPIO_TypeDef *echoPort, uint16_t echoPin)
