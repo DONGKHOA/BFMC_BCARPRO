@@ -1,39 +1,136 @@
-
 /*********************
  *      INCLUDES
  *********************/
 
 #include "mpu6050.h"
+#include <stdlib.h>
 
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void MPU6050_Writebyte(mpu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t val)
+void MPU6050_Writebyte(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t val)
 {
 	// HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
-	HAL_I2C_Mem_Write(&(mpu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
+	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
 }
 
-void MPU6050_Writebytes(mpu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t len, uint8_t* data)
+void MPU6050_Writebytes(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t len, uint8_t* data)
 {
 	// HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
-	HAL_I2C_Mem_Write(&(mpu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
+	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
 }
 
-void MPU6050_Readbyte(mpu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t* data)
+void MPU6050_Readbyte(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t* data)
 {
 	// HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
-	HAL_I2C_Mem_Read(&(mpu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
+	HAL_I2C_Mem_Read(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
 }
 
-void MPU6050_Readbytes(mpu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t len, uint8_t* data)
+void MPU6050_Readbytes(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t len, uint8_t* data)
 {   
 	// HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
-	HAL_I2C_Mem_Read(&(mpu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
+	HAL_I2C_Mem_Read(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
 }
 
-void MPU6050_Initialization(void)
+void MPU6050_Get6AxisRawData(imu_6050_t* mpu6050)
 {
+	uint8_t data[14];
+	MPU6050_Readbytes(MPU6050_ACCEL_XOUT_H, 14, data);
+
+	mpu6050->pt1_p->acc_x = (data[0] << 8) | data[1];
+	mpu6050->pt1_p->acc_y_raw = (data[2] << 8) | data[3];
+	mpu6050->pt1_p->acc_z_raw = (data[4] << 8) | data[5];
+
+	mpu6050->pt1_p->temperature_raw = (data[6] << 8) | data[7];
+
+	mpu6050->pt1_p->gyro_x_raw = ((data[8] << 8) | data[9]);
+	mpu6050->pt1_p->gyro_y_raw = ((data[10] << 8) | data[11]);
+	mpu6050->pt1_p->gyro_z_raw = ((data[12] << 8) | data[13]);
+}
+
+void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
+{
+	switch(FS_SCALE_GYRO)
+	{
+	case 0:
+		LSB_Sensitivity_GYRO = 131.f;
+		break;
+	case 1:
+		LSB_Sensitivity_GYRO = 65.5f;
+		break;
+	case 2:
+		LSB_Sensitivity_GYRO = 32.8f;
+		break;
+	case 3:
+		LSB_Sensitivity_GYRO = 16.4f;
+		break;
+	}
+	switch(FS_SCALE_ACC)
+	{
+	case 0:
+		LSB_Sensitivity_ACC = 16384.f;
+		break;
+	case 1:
+		LSB_Sensitivity_ACC = 8192.f;
+		break;
+	case 2:
+		LSB_Sensitivity_ACC = 4096.f;
+		break;
+	case 3:
+		LSB_Sensitivity_ACC = 2048.f;
+		break;
+	}
+}
+/*Convert Unit. acc_raw -> g, gyro_raw -> degree per second*/
+void MPU6050_DataConvert(imu_6050_t* mpu6050)
+{
+	//printf("LSB_Sensitivity_GYRO: %f, LSB_Sensitivity_ACC: %f\n",LSB_Sensitivity_GYRO,LSB_Sensitivity_ACC);
+	mpu6050->pt1_p->acc_x = mpu6050->acc_x_raw / LSB_Sensitivity_ACC;
+	mpu6050->pt1_p->acc_y = mpu6050->acc_y_raw / LSB_Sensitivity_ACC;
+	mpu6050->pt1_p->acc_z = mpu6050->acc_z_raw / LSB_Sensitivity_ACC;
+
+	mpu6050->pt1_p->temperature = (float)(mpu6050->temperature_raw)/340+36.53;
+
+	mpu6050->pt1_p->gyro_x = mpu6050->gyro_x_raw / LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_y = mpu6050->gyro_y_raw / LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_z = mpu6050->gyro_z_raw / LSB_Sensitivity_GYRO;
+}
+
+int MPU6050_DataReady(void)
+{
+	//old school way
+	/*
+	static uint8_t INT_STATE_FLAG = 0;
+	static uint8_t DATA_RDY_INT_FLAG = 0;
+	static uint8_t INT_PIN = 0;
+	INT_PIN = LL_GPIO_IsInputPinSet(MPU6050_INT_PORT, MPU6050_INT_PIN);
+	if(INT_PIN == 1)
+	{
+		MPU6050_Readbyte(MPU6050_INT_STATUS, &INT_STATE_FLAG); //flag cleared automatically within the sensor
+		DATA_RDY_INT_FLAG = INT_STATE_FLAG & 0x01;
+		if(DATA_RDY_INT_FLAG == 1)
+		{
+			INT_STATE_FLAG = 0; //flag clearing
+			DATA_RDY_INT_FLAG = 0;
+			INT_PIN = 0;
+			return 1;
+		}
+	}
+	return 0;
+	 */
+	return HAL_GPIO_ReadPin(MPU6050_INT_PORT, MPU6050_INT_PIN);
+}
+
+void MPU6050_ProcessData(imu_6050_t* mpu6050)
+{
+	MPU6050_Get6AxisRawData(mpu6050);
+	MPU6050_DataConvert(mpu6050);
+}
+
+void IMU_6050_Init(imu_6050_t *imu_p, I2C_HandleTypeDef *hi2c, void (* get_data)(imu_6050_t *imu_p))
+{
+	imu_p->hi2c = hi2c;	
+
 	HAL_Delay(50);
 	uint8_t who_am_i = 0;
 	MPU6050_Readbyte(MPU6050_WHO_AM_I, &who_am_i);
@@ -106,123 +203,19 @@ void MPU6050_Initialization(void)
 //	printf("MPU6050 setting is finished\n");
 }
 
-void MPU6050_Get6AxisRawData(struct_MPU6050_t* mpu6050)
+
+imu_6050_t *IMU_6050_Create(I2C_HandleTypeDef *hi2c)
 {
-	uint8_t data[14];
-	MPU6050_Readbytes(MPU6050_ACCEL_XOUT_H, 14, data);
-
-	mpu6050->acc_x_raw = (data[0] << 8) | data[1];
-	mpu6050->acc_y_raw = (data[2] << 8) | data[3];
-	mpu6050->acc_z_raw = (data[4] << 8) | data[5];
-
-	mpu6050->temperature_raw = (data[6] << 8) | data[7];
-
-	mpu6050->gyro_x_raw = ((data[8] << 8) | data[9]);
-	mpu6050->gyro_y_raw = ((data[10] << 8) | data[11]);
-	mpu6050->gyro_z_raw = ((data[12] << 8) | data[13]);
-}
-
-void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
-{
-	switch(FS_SCALE_GYRO)
-	{
-	case 0:
-		LSB_Sensitivity_GYRO = 131.f;
-		break;
-	case 1:
-		LSB_Sensitivity_GYRO = 65.5f;
-		break;
-	case 2:
-		LSB_Sensitivity_GYRO = 32.8f;
-		break;
-	case 3:
-		LSB_Sensitivity_GYRO = 16.4f;
-		break;
-	}
-	switch(FS_SCALE_ACC)
-	{
-	case 0:
-		LSB_Sensitivity_ACC = 16384.f;
-		break;
-	case 1:
-		LSB_Sensitivity_ACC = 8192.f;
-		break;
-	case 2:
-		LSB_Sensitivity_ACC = 4096.f;
-		break;
-	case 3:
-		LSB_Sensitivity_ACC = 2048.f;
-		break;
-	}
-}
-/*Convert Unit. acc_raw -> g, gyro_raw -> degree per second*/
-void MPU6050_DataConvert(struct_MPU6050_t* mpu6050)
-{
-	//printf("LSB_Sensitivity_GYRO: %f, LSB_Sensitivity_ACC: %f\n",LSB_Sensitivity_GYRO,LSB_Sensitivity_ACC);
-	mpu6050->acc_x = mpu6050->acc_x_raw / LSB_Sensitivity_ACC;
-	mpu6050->acc_y = mpu6050->acc_y_raw / LSB_Sensitivity_ACC;
-	mpu6050->acc_z = mpu6050->acc_z_raw / LSB_Sensitivity_ACC;
-
-	mpu6050->temperature = (float)(mpu6050->temperature_raw)/340+36.53;
-
-	mpu6050->gyro_x = mpu6050->gyro_x_raw / LSB_Sensitivity_GYRO;
-	mpu6050->gyro_y = mpu6050->gyro_y_raw / LSB_Sensitivity_GYRO;
-	mpu6050->gyro_z = mpu6050->gyro_z_raw / LSB_Sensitivity_GYRO;
-}
-
-int MPU6050_DataReady(void)
-{
-	//old school way
-	/*
-	static uint8_t INT_STATE_FLAG = 0;
-	static uint8_t DATA_RDY_INT_FLAG = 0;
-	static uint8_t INT_PIN = 0;
-	INT_PIN = LL_GPIO_IsInputPinSet(MPU6050_INT_PORT, MPU6050_INT_PIN);
-	if(INT_PIN == 1)
-	{
-		MPU6050_Readbyte(MPU6050_INT_STATUS, &INT_STATE_FLAG); //flag cleared automatically within the sensor
-		DATA_RDY_INT_FLAG = INT_STATE_FLAG & 0x01;
-		if(DATA_RDY_INT_FLAG == 1)
-		{
-			INT_STATE_FLAG = 0; //flag clearing
-			DATA_RDY_INT_FLAG = 0;
-			INT_PIN = 0;
-			return 1;
-		}
-	}
-	return 0;
-	 */
-	return HAL_GPIO_ReadPin(MPU6050_INT_PORT, MPU6050_INT_PIN);
-}
-
-void MPU6050_ProcessData(struct_MPU6050_t* mpu6050)
-{
-	MPU6050_Get6AxisRawData(mpu6050);
-	MPU6050_DataConvert(mpu6050);
-}
-
-
-void IMU_Init(mpu_6050_t * const mpu_p, TIM_HandleTypeDef *timer_p, uint32_t timChannel, I2C_HandleTypeDef *hi2c)
-{
-    mpu_p->timer_p = timer_p;
-    mpu_p->timChannel = timChannel;
-    // HAL_TIM_PWM_Start(mpu_p->timer_p, mpu_p->timChannel);
-	mpu_p->hi2c = hi2c;
-}
-
-
-mpu_6050_t *IMU_Create(TIM_HandleTypeDef * timer_p, uint32_t timChannel, I2C_HandleTypeDef *hi2c)
-{
-    mpu_6050_t *mpu_p = malloc(sizeof(mpu_6050_t));
-    if (mpu_p != NULL)
+    imu_6050_t *imu_p = malloc(sizeof(imu_6050_t));
+    if (imu_p != NULL)
     {
-        IMU_Init(mpu_p, timer_p, timChannel, hi2c);
+        IMU_6050_Init(imu_p, hi2c, MPU6050_ProcessData);
     }
-    return mpu_p;
+    return imu_p;
 }
 
 
-void IMU_Destroy(mpu_6050_t * const mpu_p)
+void IMU_6050_Destroy(imu_6050_t * const imu_p)
 {
-    free(mpu_p);
+    free(imu_p);
 }

@@ -15,7 +15,7 @@ float Interpolate_Distance(float distance, const float distanceValueP[], const f
                 return steering;
             }
         }
-    }
+    } 
     if (distance < 0)
     {
         if (distance >= distanceValueN[0])
