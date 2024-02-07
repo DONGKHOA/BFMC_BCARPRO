@@ -127,10 +127,11 @@ void MPU6050_ProcessData(imu_6050_t* mpu6050)
 	MPU6050_DataConvert(mpu6050);
 }
 
-void IMU_6050_Init(imu_6050_t *imu_p, I2C_HandleTypeDef *hi2c, void (* get_data)(imu_6050_t *imu_p))
+void IMU_6050_Init(imu_6050_t *imu_p, I2C_HandleTypeDef *hi2c, void (* get_data_func)(imu_6050_t *imu_p))
 {
 	imu_p->hi2c = hi2c;	
-
+	imu_p->get_data = get_data_func;
+	
 	HAL_Delay(50);
 	uint8_t who_am_i = 0;
 	MPU6050_Readbyte(MPU6050_WHO_AM_I, &who_am_i);
