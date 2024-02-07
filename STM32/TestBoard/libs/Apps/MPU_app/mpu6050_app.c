@@ -1,6 +1,6 @@
 #include "mpu6050_app.h"
 
-void CalculateAccAngle(struct_Angle_t* Angle, struct_MPU6050_t* MPU6050)
+void CalculateAccAngle(Angle_t* Angle, MPU6050_t* MPU6050)
 {
 	Angle->acc_roll  = atan(-MPU6050->acc_x / sqrt(pow(MPU6050->acc_y,2) + pow(MPU6050->acc_z,2))) * RADIAN_TO_DEGREE;
 	Angle->acc_pitch = atan(MPU6050->acc_y / sqrt(pow(MPU6050->acc_x,2) + pow(MPU6050->acc_z,2))) * RADIAN_TO_DEGREE;

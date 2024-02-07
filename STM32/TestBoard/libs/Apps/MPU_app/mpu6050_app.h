@@ -12,6 +12,6 @@ const float dtt = (1.0 / 100.0); // sample rate
 const float RC = 0.35; //RC = 1.0/(cutofFreq * 2 * M_PI);
 const float alpha = dtt / (RC + dtt);
 
-void CalculateAccAngle(Struct_Angle_t* Angle, Struct_MPU6050_t* MPU6050)
+void CalculateAccAngle(Angle_t* Angle, MPU6050_t* MPU6050)
 
 #endif

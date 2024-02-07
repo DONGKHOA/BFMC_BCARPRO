@@ -50,7 +50,7 @@ typedef struct _MPU6050{
 	float gyro_x;
 	float gyro_y;
 	float gyro_z;
-} struct_MPU6050_t;
+} MPU6050_t;
 
 
 
@@ -76,21 +76,21 @@ typedef struct _Angle{
     float Filt_roll;
 	float Filt_pitch;
 	float Filt_yaw;
-} struct_Angle_t;
+} Angle_t;
 
 
 
 
-struct imu_6050;
-typedef struct imu_6050 imu_6050_t;
+// struct imu_6050;
+// typedef struct imu_6050 imu_6050_t;
 
-struct imu_6050
+typedef imu_6050
 {
 	I2C_HandleTypeDef *hi2c;
-    void (* get_data)(bldc_motor_t *const imu_p);
-	struct_MPU6050_t *pt1_p;
-	struct_Angle_t *pt2_p;
-};
+    void (* get_data)(imu_6050_t *const imu_p);
+	MPU6050_t *pt1_p;
+	Angle_t *pt2_p;
+}imu_6050_t;
 
 
 /**********************
