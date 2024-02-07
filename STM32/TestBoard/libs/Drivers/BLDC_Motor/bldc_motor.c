@@ -208,6 +208,7 @@ bldc_motor_t *BLDC_MOTOR_Create(TIM_HandleTypeDef * timer_p, uint32_t timChannel
     return motor_p;
 }
 
+
 /**
  * The function `BLDC_MOTOR_Destroy` is used to free the memory allocated for a BLDC motor object.
  * 
