@@ -8,30 +8,32 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void MPU6050_Writebyte(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t val)
+void MPU6050_Writebyte(uint8_t reg_addr, uint8_t val)
 {
-	// HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
-	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
+	 HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
+//	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
 }
 
-void MPU6050_Writebytes(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t len, uint8_t* data)
+void MPU6050_Writebytes(uint8_t reg_addr, uint8_t len, uint8_t* data)
 {
-	// HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
-	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
+	 HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
+//	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
 }
 
-void MPU6050_Readbyte(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t* data)
+void MPU6050_Readbyte(uint8_t reg_addr, uint8_t* data)
 {
-	// HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
-	HAL_I2C_Mem_Read(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
+	 HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
+//	HAL_I2C_Mem_Read(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, 1, 1);
 }
 
-void MPU6050_Readbytes(imu_6050_t * const mpu_p, uint8_t reg_addr, uint8_t len, uint8_t* data)
+void MPU6050_Readbytes(uint8_t reg_addr, uint8_t len, uint8_t* data)
 {   
-	// HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
-	HAL_I2C_Mem_Read(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
+	 HAL_I2C_Mem_Read(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
+//	HAL_I2C_Mem_Read(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, data, len, 1);
 }
 
+/// @brief 
+/// @param mpu6050 
 void MPU6050_Get6AxisRawData(imu_6050_t* mpu6050)
 {
 	uint8_t data[14];
@@ -48,6 +50,9 @@ void MPU6050_Get6AxisRawData(imu_6050_t* mpu6050)
 	mpu6050->pt1_p->gyro_z_raw = ((data[12] << 8) | data[13]);
 }
 
+/// @brief 
+/// @param FS_SCALE_GYRO 
+/// @param FS_SCALE_ACC 
 void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 {
 	switch(FS_SCALE_GYRO)
@@ -85,15 +90,15 @@ void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 void MPU6050_DataConvert(imu_6050_t* mpu6050)
 {
 	//printf("LSB_Sensitivity_GYRO: %f, LSB_Sensitivity_ACC: %f\n",LSB_Sensitivity_GYRO,LSB_Sensitivity_ACC);
-	mpu6050->pt1_p->acc_x = mpu6050->acc_x_raw / LSB_Sensitivity_ACC;
-	mpu6050->pt1_p->acc_y = mpu6050->acc_y_raw / LSB_Sensitivity_ACC;
-	mpu6050->pt1_p->acc_z = mpu6050->acc_z_raw / LSB_Sensitivity_ACC;
+	mpu6050->pt1_p->acc_x = mpu6050->pt1_p->acc_x_raw / LSB_Sensitivity_ACC;
+	mpu6050->pt1_p->acc_y = mpu6050->pt1_p->acc_y_raw / LSB_Sensitivity_ACC;
+	mpu6050->pt1_p->acc_z = mpu6050->pt1_p->acc_z_raw / LSB_Sensitivity_ACC;
 
-	mpu6050->pt1_p->temperature = (float)(mpu6050->temperature_raw)/340+36.53;
+	mpu6050->pt1_p->temperature = (float)(mpu6050->pt1_p->temperature_raw)/340+36.53;
 
-	mpu6050->pt1_p->gyro_x = mpu6050->gyro_x_raw / LSB_Sensitivity_GYRO;
-	mpu6050->pt1_p->gyro_y = mpu6050->gyro_y_raw / LSB_Sensitivity_GYRO;
-	mpu6050->pt1_p->gyro_z = mpu6050->gyro_z_raw / LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_x = mpu6050->pt1_p->gyro_x_raw / LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_y = mpu6050->pt1_p->gyro_y_raw / LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_z = mpu6050->pt1_p->gyro_z_raw / LSB_Sensitivity_GYRO;
 }
 
 int MPU6050_DataReady(void)
@@ -127,9 +132,8 @@ void MPU6050_ProcessData(imu_6050_t* mpu6050)
 	MPU6050_DataConvert(mpu6050);
 }
 
-void IMU_6050_Init(imu_6050_t *imu_p, I2C_HandleTypeDef *hi2c, void (* get_data_func)(imu_6050_t *imu_p))
+void IMU_6050_Init(imu_6050_t *imu_p, void (* get_data_func)(imu_6050_t *imu_p))
 {
-	imu_p->hi2c = hi2c;	
 	imu_p->get_data = get_data_func;
 	
 	HAL_Delay(50);
@@ -137,11 +141,11 @@ void IMU_6050_Init(imu_6050_t *imu_p, I2C_HandleTypeDef *hi2c, void (* get_data_
 	MPU6050_Readbyte(MPU6050_WHO_AM_I, &who_am_i);
 	if(who_am_i == 0x68)
 	{
-		error = 20;
+//		error = 20;
 	}
 	else
 	{
-		error = 404;
+//		error = 404;
 		while(1);
 	}
 
@@ -205,12 +209,12 @@ void IMU_6050_Init(imu_6050_t *imu_p, I2C_HandleTypeDef *hi2c, void (* get_data_
 }
 
 
-imu_6050_t *IMU_6050_Create(I2C_HandleTypeDef *hi2c)
+imu_6050_t *IMU_6050_Create()
 {
     imu_6050_t *imu_p = malloc(sizeof(imu_6050_t));
     if (imu_p != NULL)
     {
-        IMU_6050_Init(imu_p, hi2c, MPU6050_ProcessData);
+        IMU_6050_Init(imu_p, MPU6050_ProcessData);
     }
     return imu_p;
 }

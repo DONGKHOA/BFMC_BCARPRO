@@ -32,7 +32,8 @@
  **********************/
 static float LSB_Sensitivity_ACC;
 static float LSB_Sensitivity_GYRO;
-uint16_t error;
+//uint16_t error;
+extern I2C_HandleTypeDef hi2c1;
 
 typedef struct _MPU6050{
 	short acc_x_raw;
@@ -82,22 +83,22 @@ typedef struct _Angle{
 
 
 // struct imu_6050;
-// typedef struct imu_6050 imu_6050_t;
+ typedef struct imu_6050 imu_6050_t;
 
-typedef imu_6050
+struct imu_6050
 {
-	I2C_HandleTypeDef *hi2c;
+//	I2C_HandleTypeDef *hi2c;
     void (* get_data)(imu_6050_t *const imu_p);
 	MPU6050_t *pt1_p;
 	Angle_t *pt2_p;
-}imu_6050_t;
+};
 
 
 /**********************
  *     OPERATION
  **********************/
 
-imu_6050_t *IMU_6050_Create(I2C_HandleTypeDef *hi2c);
+imu_6050_t *IMU_6050_Create();
 void IMU_6050_Destroy(imu_6050_t * const imu_p);
 
 #endif /* DRIVERS_MPU_6050_H_ */
