@@ -25,6 +25,8 @@
 #include "bldc_motor.h"
 #include "hc_sr04.h"
 #include "servo_motor.h"
+#include "button.h"
+// #include ""
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +60,22 @@ osThreadId controlSpeedingHandle;
 osThreadId controlSteeringHandle;
 osThreadId controlCameraTaHandle;
 /* USER CODE BEGIN PV */
+
+// BLDC motor driver
+
 bldc_motor_t *bldc_motor_0;
+
+// SR04 measure distance from car to barrier
+
+SR04Driver_t *sr04_0;
+SR04Driver_t *sr04_1;
+SR04Driver_t *sr04_2;
+SR04Driver_t *sr04_3;
+
+// Button driver init bldc motor
+
+button_t *button_0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,6 +138,13 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   bldc_motor_0 = BLDC_MOTOR_Create(&htim1, TIM_CHANNEL_3);
+
+  button_0 = BUTTON_Create(INIT_MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
+
+  sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
+  sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
+  sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
+  sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -604,9 +628,13 @@ void StartSituation(void const * argument)
 void StartControlSpeeding(void const * argument)
 {
   /* USER CODE BEGIN StartControlSpeeding */
+  bldc_motor_0->speed = STOP_SPEED;
+  bldc_motor_0->set_speed(bldc_motor_0);
   /* Infinite loop */
   for(;;)
   {
+    button_0->handle(button_0);
+    
     osDelay(1);
   }
   /* USER CODE END StartControlSpeeding */
