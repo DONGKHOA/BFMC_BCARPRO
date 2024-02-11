@@ -23,45 +23,39 @@ const float steeringValueN[4] = {-1.0, -8.0, -15.0, -20.0};
 
 float DISTANCE_HANDLE_Set_Interpolate(distance_handle_t *const distance_handle_p)
 {
-	if (distance_handle_p->distance == 0)
+
+	if (distance_handle_p->distance > 0)
 	{
-		return 0;
-	}
-	else
-	{
-		if (distance_handle_p->distance > 0)
+		if (distance_handle_p->distance < distanceValueP[0])
+			return 0;
+		if (distance_handle_p->distance >= distanceValueP[distance_handle_p->SIZE - 1])
+			return steeringValueP[distance_handle_p->SIZE - 1];
+		else
 		{
-			if (distance_handle_p->distance < distanceValueP[0])
-				return 0;
-			if (distance_handle_p->distance >= distanceValueP[distance_handle_p->SIZE - 1])
-				return steeringValueP[distance_handle_p->SIZE - 1];
-			else
+			for (uint8_t i = 0; i < distance_handle_p->SIZE; i++)
 			{
-				for (uint8_t i = 0; i < distance_handle_p->SIZE; i++)
+				if ((distance_handle_p->distance >= distanceValueP[i]) && distance_handle_p->distance <= distanceValueP[i + 1])
 				{
-					if ((distance_handle_p->distance >= distanceValueP[i]) && distance_handle_p->distance <= distanceValueP[i + 1])
-					{
-						distance_handle_p->steering = ((distance_handle_p->distance - distanceValueP[i])*steeringValueP[i + 1] + (distanceValueP[i + 1] - distance_handle_p->distance)*steeringValueP[i])/(distanceValueP[i + 1] - distanceValueP[i]);
-						return distance_handle_p->steering;
-					}
+					distance_handle_p->steering = ((distance_handle_p->distance - distanceValueP[i])*steeringValueP[i + 1] + (distanceValueP[i + 1] - distance_handle_p->distance)*steeringValueP[i])/(distanceValueP[i + 1] - distanceValueP[i]);
+					return distance_handle_p->steering;
 				}
 			}
 		}
-		if (distance_handle_p->distance < 0)
+	}
+	else if (distance_handle_p->distance < 0)
+	{
+		if (distance_handle_p->distance > distanceValueN[0])
+			return 0;
+		if (distance_handle_p->distance <= distanceValueN[distance_handle_p->SIZE - 1])
+			return steeringValueN[distance_handle_p->SIZE - 1];
+		else
 		{
-			if (distance_handle_p->distance > distanceValueN[0])
-				return 0;
-			if (distance_handle_p->distance <= distanceValueN[distance_handle_p->SIZE - 1])
-				return steeringValueN[distance_handle_p->SIZE - 1];
-			else
+			for (uint8_t i = 0; i < distance_handle_p->SIZE; i++)
 			{
-				for (uint8_t i = 0; i < distance_handle_p->SIZE; i++)
+				if ((distance_handle_p->distance <= distanceValueN[i]) && distance_handle_p->distance >= distanceValueN[i + 1])
 				{
-					if ((distance_handle_p->distance <= distanceValueN[i]) && distance_handle_p->distance >= distanceValueN[i + 1])
-					{
-						distance_handle_p->steering = ((distance_handle_p->distance - distanceValueN[i])*steeringValueN[i + 1] + (distanceValueN[i + 1] - distance_handle_p->distance)*steeringValueN[i])/(distanceValueN[i + 1] - distanceValueN[i]);
-						return distance_handle_p->steering;
-					}
+					distance_handle_p->steering = ((distance_handle_p->distance - distanceValueN[i])*steeringValueN[i + 1] + (distanceValueN[i + 1] - distance_handle_p->distance)*steeringValueN[i])/(distanceValueN[i + 1] - distanceValueN[i]);
+					return distance_handle_p->steering;
 				}
 			}
 		}
