@@ -8,7 +8,7 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-void MPU6050_Writebyte(uint8_t reg_addr, uint8_t val)
+void MPU6050_Writebyte(uint8_t reg_addr, uint8_t val) 
 {
 	 HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
 //	HAL_I2C_Mem_Write(&(imu_p->hi2c), MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
@@ -34,12 +34,13 @@ void MPU6050_Readbytes(uint8_t reg_addr, uint8_t len, uint8_t* data)
 
 /// @brief 
 /// @param mpu6050 
+//output: gia tri raw cua gia toc cac truc
 void MPU6050_Get6AxisRawData(imu_6050_t* mpu6050)
 {
 	uint8_t data[14];
 	MPU6050_Readbytes(MPU6050_ACCEL_XOUT_H, 14, data);
 
-	mpu6050->pt1_p->acc_x = (data[0] << 8) | data[1];
+	mpu6050->pt1_p->acc_x_raw = (data[0] << 8) | data[1];
 	mpu6050->pt1_p->acc_y_raw = (data[2] << 8) | data[3];
 	mpu6050->pt1_p->acc_z_raw = (data[4] << 8) | data[5];
 
@@ -53,40 +54,44 @@ void MPU6050_Get6AxisRawData(imu_6050_t* mpu6050)
 /// @brief 
 /// @param FS_SCALE_GYRO 
 /// @param FS_SCALE_ACC 
-void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
-{
-	switch(FS_SCALE_GYRO)
-	{
-	case 0:
-		LSB_Sensitivity_GYRO = 131.f;
-		break;
-	case 1:
-		LSB_Sensitivity_GYRO = 65.5f;
-		break;
-	case 2:
-		LSB_Sensitivity_GYRO = 32.8f;
-		break;
-	case 3:
-		LSB_Sensitivity_GYRO = 16.4f;
-		break;
-	}
-	switch(FS_SCALE_ACC)
-	{
-	case 0:
-		LSB_Sensitivity_ACC = 16384.f;
-		break;
-	case 1:
-		LSB_Sensitivity_ACC = 8192.f;
-		break;
-	case 2:
-		LSB_Sensitivity_ACC = 4096.f;
-		break;
-	case 3:
-		LSB_Sensitivity_ACC = 2048.f;
-		break;
-	}
-}
+
+// void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
+// {
+// 	switch(FS_SCALE_GYRO)
+// 	{
+// 	case 0:
+// 		LSB_Sensitivity_GYRO = 131.f;
+// 		break;
+// 	case 1:
+// 		LSB_Sensitivity_GYRO = 65.5f;
+// 		break;
+// 	case 2:
+// 		LSB_Sensitivity_GYRO = 32.8f;
+// 		break;
+// 	case 3:
+// 		LSB_Sensitivity_GYRO = 16.4f;
+// 		break;
+// 	}
+// 	switch(FS_SCALE_ACC)
+// 	{
+// 	case 0:
+// 		LSB_Sensitivity_ACC = 16384.f;
+// 		break;
+// 	case 1:
+// 		LSB_Sensitivity_ACC = 8192.f;
+// 		break;
+// 	case 2:
+// 		LSB_Sensitivity_ACC = 4096.f;
+// 		break;
+// 	case 3:
+// 		LSB_Sensitivity_ACC = 2048.f;
+// 		break;
+// 	}
+// }
+
+
 /*Convert Unit. acc_raw -> g, gyro_raw -> degree per second*/
+//chuyen tu raw sang gia tri m/s2, do/giay
 void MPU6050_DataConvert(imu_6050_t* mpu6050)
 {
 	//printf("LSB_Sensitivity_GYRO: %f, LSB_Sensitivity_ACC: %f\n",LSB_Sensitivity_GYRO,LSB_Sensitivity_ACC);
@@ -126,12 +131,17 @@ void MPU6050_DataConvert(imu_6050_t* mpu6050)
 // 	return HAL_GPIO_ReadPin(MPU6050_INT_PORT, MPU6050_INT_PIN);
 // }
 
+
+
+//input: con tro de lay gia tri cac truc luu vao struct
 void MPU6050_ProcessData(imu_6050_t* mpu6050)
 {
 	MPU6050_Get6AxisRawData(mpu6050);
 	MPU6050_DataConvert(mpu6050);
 }
 
+
+//ham init
 void IMU_6050_Init(imu_6050_t *imu_p, void (* get_data_func)(imu_6050_t *imu_p))
 {
 	imu_p->get_data = get_data_func;
