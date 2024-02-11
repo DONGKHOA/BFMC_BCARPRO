@@ -3,7 +3,7 @@
 
 
 #include "main.h"
-#include "STM32/TestBoard/libs/Drivers/MPU6050/mpu6050.h"
+#include "mpu6050.h"
 
 #define RADIAN_TO_DEGREE 180/3.141592f
 
