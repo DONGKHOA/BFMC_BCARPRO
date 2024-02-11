@@ -1,0 +1,77 @@
+!SESSION 2024-02-11 12:28:45.932 -----------------------------------------------
+eclipse.buildId=Version 1.13.1
+java.version=17.0.6
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-02-11 12:29:25.079
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-02-11 12:29:25.090
+!MESSAGE Log4j2 initialized with config file D:\BFMC_BCARPRO\STM32\TestBoard\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-02-11 12:29:32.201
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2024-02-11 12:29:55.752 -----------------------------------------------
+eclipse.buildId=Version 1.13.1
+java.version=17.0.6
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-02-11 12:30:24.984
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-02-11 12:30:24.985
+!MESSAGE Log4j2 initialized with config file D:\BFMC_BCARPRO\STM32\TestBoard\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-02-11 12:30:28.444
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2024-02-11 12:36:08.197 -----------------------------------------------
+eclipse.buildId=Version 1.13.1
+java.version=17.0.6
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  D:\BFMC_BCARPRO\STM32\TestBoard\.cproject
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 D:\BFMC_BCARPRO\STM32\TestBoard\.cproject
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-02-11 12:36:13.020
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-02-11 12:36:13.022
+!MESSAGE Log4j2 initialized with config file D:\BFMC_BCARPRO\STM32\TestBoard\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-02-11 12:36:16.322
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2024-02-11 12:36:44.416 -----------------------------------------------
+eclipse.buildId=Version 1.13.1
+java.version=17.0.6
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-02-11 12:37:09.384
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-02-11 12:37:09.385
+!MESSAGE Log4j2 initialized with config file D:\BFMC_BCARPRO\STM32\TestBoard\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-02-11 12:37:13.286
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2024-02-11 12:37:13.447 -----------------------------------------------
+eclipse.buildId=Version 1.13.1
+java.version=17.0.6
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  D:\BFMC_BCARPRO\STM32\TestBoard\.cproject
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 D:\BFMC_BCARPRO\STM32\TestBoard\.cproject
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-02-11 12:37:32.318
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-02-11 12:37:32.318
+!MESSAGE Log4j2 initialized with config file D:\BFMC_BCARPRO\STM32\TestBoard\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-02-11 12:37:35.809
+!MESSAGE Started RMI Server, listening on port 41337

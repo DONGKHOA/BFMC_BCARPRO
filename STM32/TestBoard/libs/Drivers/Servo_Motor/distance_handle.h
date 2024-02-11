@@ -6,19 +6,13 @@
 #define _DISTANCE_HANDLE_H_
 
 #include "main.h"
+#include "stdio.h"
 #include "stdint.h"
 #include "stdlib.h"
 
 /**********************
  *      CONSTANTS
  **********************/
-
-/* Distance table */
-const float distanceValueP[2] = {7.0, 10.0};
-const float distanceValueN[2] = {-7.0, -10.0};
-/* Angle table */
-const float steeringValueP[2] = {15.0, 20.0};
-const float steeringValueN[2] = {-15.0, -20.0};
 
 /**********************
  *      TYPEDEFS
@@ -33,7 +27,7 @@ struct distance_handle
     float distance;
     float steering;
     /* Function for Interpolate */
-    void (*set_interpolate)(distance_handle_t *const distance_handle_p);
+    float (*set_interpolate)(distance_handle_t *const distance_handle_p);
 };
 
 /**********************
