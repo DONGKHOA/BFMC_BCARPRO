@@ -8,6 +8,8 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+float LSB_Sensitivity_ACC;
+float LSB_Sensitivity_GYRO;
 void MPU6050_Writebyte(uint8_t reg_addr, uint8_t val) 
 {
 	 HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR, reg_addr, I2C_MEMADD_SIZE_8BIT, &val, 1, 1);
