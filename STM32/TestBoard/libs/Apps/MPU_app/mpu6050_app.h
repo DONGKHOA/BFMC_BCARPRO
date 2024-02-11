@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "mpu6050.h"
+#include "math.h"
 
 #define RADIAN_TO_DEGREE 180/3.141592f
 
