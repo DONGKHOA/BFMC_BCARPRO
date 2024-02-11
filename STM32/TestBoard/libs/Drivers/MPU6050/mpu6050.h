@@ -30,8 +30,8 @@
 /**********************
  *      TYPEDEFS
  **********************/
-static float LSB_Sensitivity_ACC;
-static float LSB_Sensitivity_GYRO;
+float LSB_Sensitivity_ACC;
+float LSB_Sensitivity_GYRO;
 //uint16_t error;
 extern I2C_HandleTypeDef hi2c1;
 
