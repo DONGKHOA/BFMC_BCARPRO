@@ -55,39 +55,39 @@ void MPU6050_Get6AxisRawData(imu_6050_t* mpu6050)
 /// @param FS_SCALE_GYRO 
 /// @param FS_SCALE_ACC 
 
-// void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
-// {
-// 	switch(FS_SCALE_GYRO)
-// 	{
-// 	case 0:
-// 		LSB_Sensitivity_GYRO = 131.f;
-// 		break;
-// 	case 1:
-// 		LSB_Sensitivity_GYRO = 65.5f;
-// 		break;
-// 	case 2:
-// 		LSB_Sensitivity_GYRO = 32.8f;
-// 		break;
-// 	case 3:
-// 		LSB_Sensitivity_GYRO = 16.4f;
-// 		break;
-// 	}
-// 	switch(FS_SCALE_ACC)
-// 	{
-// 	case 0:
-// 		LSB_Sensitivity_ACC = 16384.f;
-// 		break;
-// 	case 1:
-// 		LSB_Sensitivity_ACC = 8192.f;
-// 		break;
-// 	case 2:
-// 		LSB_Sensitivity_ACC = 4096.f;
-// 		break;
-// 	case 3:
-// 		LSB_Sensitivity_ACC = 2048.f;
-// 		break;
-// 	}
-// }
+void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
+{
+	switch(FS_SCALE_GYRO)
+	{
+	case 0:
+		LSB_Sensitivity_GYRO = 131.f;
+		break;
+	case 1:
+		LSB_Sensitivity_GYRO = 65.5f;
+		break;
+	case 2:
+		LSB_Sensitivity_GYRO = 32.8f;
+		break;
+	case 3:
+		LSB_Sensitivity_GYRO = 16.4f;
+		break;
+	}
+	switch(FS_SCALE_ACC)
+	{
+	case 0:
+		LSB_Sensitivity_ACC = 16384.f;
+		break;
+	case 1:
+		LSB_Sensitivity_ACC = 8192.f;
+		break;
+	case 2:
+		LSB_Sensitivity_ACC = 4096.f;
+		break;
+	case 3:
+		LSB_Sensitivity_ACC = 2048.f;
+		break;
+	}
+}
 
 
 /*Convert Unit. acc_raw -> g, gyro_raw -> degree per second*/
