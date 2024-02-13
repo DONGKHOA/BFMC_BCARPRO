@@ -23,7 +23,6 @@ const float steeringValueN[4] = {-1.0, -8.0, -15.0, -20.0};
 
 float DISTANCE_HANDLE_Set_Interpolate(distance_handle_t *const distance_handle_p)
 {
-
 	if (distance_handle_p->distance > 0)
 	{
 		if (distance_handle_p->distance < distanceValueP[0])

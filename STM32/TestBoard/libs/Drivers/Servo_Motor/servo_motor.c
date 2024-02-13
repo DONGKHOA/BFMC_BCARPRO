@@ -18,7 +18,21 @@
  */
 void SERVO_MOTOR_Set_Steering(servo_motor_t *const servo_p)
 {
-    servo_p->timer_p->Instance->CCR1 = servo_p->duty_steering;
+    switch (servo_p->timChannel)
+    {
+        case TIM_CHANNEL_1:
+            servo_p->timer_p->Instance->CCR1 = servo_p->duty_steering;
+            break;
+        case TIM_CHANNEL_2:
+        	servo_p->timer_p->Instance->CCR2 = servo_p->duty_steering;
+        	break;
+        case TIM_CHANNEL_3:
+        	servo_p->timer_p->Instance->CCR3 = servo_p->duty_steering;
+        	break;
+        case TIM_CHANNEL_4:
+        	servo_p->timer_p->Instance->CCR4 = servo_p->duty_steering;
+        	break;
+    }
 }
 
 /**
@@ -40,8 +54,9 @@ void SERVO_MOTOR_Init(servo_motor_t *const servo_p, TIM_HandleTypeDef *timer_p, 
 {
     servo_p->set_steering = set_steering_func;
     servo_p->timer_p = timer_p;
-    HAL_TIM_PWM_Start(servo_p->timer_p, servo_p->timChannel);
+    servo_p->timChannel = timChannel;
     servo_p->duty_steering = DUTY_CYCLE_MIDDLE_STEERING;
+    HAL_TIM_PWM_Start(servo_p->timer_p, servo_p->timChannel);
     SERVO_MOTOR_Set_Steering(servo_p);
 }
 
