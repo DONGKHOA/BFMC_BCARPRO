@@ -23,19 +23,20 @@
 #define MPU6050_INT_STATUS 0X3A
 #define MPU6050_ACCEL_XOUT_H 0X3B
 #define MPU6050_ACCEL_XOUT_L 0X3C
-#define MPU6050_PWR_MGMT_1 0X6B //most important
-#define MPU6050_INT_PORT 	GPIOB
-#define MPU6050_INT_PIN 	GPIO_PIN_5
+#define MPU6050_PWR_MGMT_1 0X6B // most important
+#define MPU6050_INT_PORT GPIOB
+#define MPU6050_INT_PIN GPIO_PIN_5
 
 /**********************
  *      TYPEDEFS
  **********************/
-//float LSB_Sensitivity_ACC;
-//float LSB_Sensitivity_GYRO;
-//uint16_t error;
+// float LSB_Sensitivity_ACC;
+// float LSB_Sensitivity_GYRO;
+// uint16_t error;
 extern I2C_HandleTypeDef hi2c1;
 
-typedef struct _MPU6050{
+typedef struct _MPU6050
+{
 	short acc_x_raw;
 	short acc_y_raw;
 	short acc_z_raw;
@@ -53,10 +54,8 @@ typedef struct _MPU6050{
 	float gyro_z;
 } MPU6050_t;
 
-
-
-
-typedef struct _Angle{
+typedef struct _Angle
+{
 	float acc_roll;
 	float acc_pitch;
 	float acc_yaw;
@@ -69,36 +68,31 @@ typedef struct _Angle{
 	float ComFilt_pitch;
 	float ComFilt_yaw;
 
-
 	float acc_roll_filt;
 	float acc_pitch_filt;
 	float acc_yaw_filt;
 
-    float Filt_roll;
+	float Filt_roll;
 	float Filt_pitch;
 	float Filt_yaw;
 } Angle_t;
 
-
-
-
-// struct imu_6050;
- typedef struct imu_6050 imu_6050_t;
+struct imu_6050;
+typedef struct imu_6050 imu_6050_t;
 
 struct imu_6050
 {
-//	I2C_HandleTypeDef *hi2c;
-    void (* get_data)(imu_6050_t *const imu_p);
+	//	I2C_HandleTypeDef *hi2c;
+	void (*get_data)(imu_6050_t *const imu_p);
 	MPU6050_t *pt1_p;
 	Angle_t *pt2_p;
 };
-
 
 /**********************
  *     OPERATION
  **********************/
 
 imu_6050_t *IMU_6050_Create();
-void IMU_6050_Destroy(imu_6050_t * const imu_p);
+void IMU_6050_Destroy(imu_6050_t *const imu_p);
 
 #endif /* DRIVERS_MPU_6050_H_ */

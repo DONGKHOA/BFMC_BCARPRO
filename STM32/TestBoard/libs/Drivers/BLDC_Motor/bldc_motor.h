@@ -49,15 +49,14 @@ struct bldc_motor
     TIM_HandleTypeDef *timer_p;
     speed_motor_bldc_t speed;
     uint32_t timChannel;
-    void (* set_speed)(bldc_motor_t *const motor_p);
+    void (*set_speed)(bldc_motor_t *const motor_p);
 };
-
 
 /**********************
  *     OPERATION
  **********************/
 
-bldc_motor_t *BLDC_MOTOR_Create(TIM_HandleTypeDef * timer_p, uint32_t timChannel);
-void BLDC_MOTOR_Destroy(bldc_motor_t * const motor_p);
+bldc_motor_t *BLDC_MOTOR_Create(TIM_HandleTypeDef *timer_p, uint32_t timChannel);
+void BLDC_MOTOR_Destroy(bldc_motor_t *const motor_p);
 
 #endif /* DRIVERS_BLDC_MOTOR_BLDC_MOTOR_H_ */
