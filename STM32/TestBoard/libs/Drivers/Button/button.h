@@ -24,9 +24,10 @@ struct button
     uint8_t is_pressing;
     uint16_t buttonPin;
     uint32_t debouncingTimer;
+    uint32_t pressingTimer;
     GPIO_TypeDef *buttonPort;
 
-    void (* handle)(button_t * const button_p);
+    void (* exti_handle)(button_t * const button_p);
 };
 
 /**********************

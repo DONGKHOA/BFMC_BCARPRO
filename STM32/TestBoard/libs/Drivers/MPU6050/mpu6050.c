@@ -75,7 +75,6 @@ void MPU6050_Get6AxisRawData(imu_6050_t *mpu6050)
 void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 {
 	switch (FS_SCALE_GYRO)
-		switch (FS_SCALE_GYRO)
 		{
 		case 0:
 			LSB_Sensitivity_GYRO = 131.f;
@@ -91,7 +90,6 @@ void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 			break;
 		}
 	switch (FS_SCALE_ACC)
-		switch (FS_SCALE_ACC)
 		{
 		case 0:
 			LSB_Sensitivity_ACC = 16384.f;
