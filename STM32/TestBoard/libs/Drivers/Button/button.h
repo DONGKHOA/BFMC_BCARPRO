@@ -21,10 +21,7 @@ typedef struct button button_t;
 
 struct button
 {
-    uint8_t currentState : 1;
-    uint8_t lastState : 1;
-    uint8_t debouncingState : 1;
-    uint8_t isDebouncing : 1;
+    uint8_t is_pressing;
     uint16_t buttonPin;
     uint32_t debouncingTimer;
     GPIO_TypeDef *buttonPort;

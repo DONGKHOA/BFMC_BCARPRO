@@ -32,7 +32,7 @@ struct servo_motor
     TIM_HandleTypeDef *timer_p;
     uint32_t timChannel;
     uint32_t duty_steering;
-    void (*set_steering)(servo_motor_t *const servo_p);
+    void (* set_steering)(servo_motor_t *const servo_p);
 };
 
 /**********************

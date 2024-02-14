@@ -8,6 +8,7 @@
  * @param MPU6050 The MPU6050 is a sensor module that measures acceleration and rotation using a
  * gyroscope and accelerometer. It has the following properties:
  */
+
 void CalculateAccAngle(Angle_t *Angle, MPU6050_t *MPU6050)
 {
     Angle->acc_roll = atan(-MPU6050->acc_x / sqrt(pow(MPU6050->acc_y, 2) + pow(MPU6050->acc_z, 2))) * RADIAN_TO_DEGREE;

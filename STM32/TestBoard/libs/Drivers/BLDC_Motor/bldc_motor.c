@@ -17,7 +17,7 @@
 /**
  * The function sets the speed of a BLDC motor based on the motor's timer channel, speed, and
  * direction.
- * 
+ *
  * @param motor_p The parameter `motor_p` is a pointer to a structure of type `bldc_motor_t`.
  */
 void BLDC_MOTOR_Set_Speed(bldc_motor_t *const motor_p)
@@ -156,13 +156,12 @@ void BLDC_MOTOR_Set_Speed(bldc_motor_t *const motor_p)
         }
         break;
     }
-    
 }
 
 /**
  * The BLDC_MOTOR_Init function initializes a BLDC motor by setting its speed, timer, timer channel,
  * direction, and starting the timer PWM.
- * 
+ *
  * @param motor_p A pointer to a structure representing the BLDC motor. This structure contains various
  * properties and settings related to the motor.
  * @param timer_p A pointer to the TIM_HandleTypeDef structure that represents the timer used for
@@ -174,8 +173,8 @@ void BLDC_MOTOR_Set_Speed(bldc_motor_t *const motor_p)
  * which is responsible for setting the speed of the BLDC motor. This function takes a `bldc_motor_t`
  * pointer as a parameter and does not return anything.
  */
-void BLDC_MOTOR_Init(bldc_motor_t * const motor_p, TIM_HandleTypeDef *timer_p, uint32_t timChannel,
-                        void (* set_speed_func)(bldc_motor_t *const motor))
+void BLDC_MOTOR_Init(bldc_motor_t *const motor_p, TIM_HandleTypeDef *timer_p, uint32_t timChannel,
+                     void (*set_speed_func)(bldc_motor_t *const motor))
 {
     motor_p->set_speed = set_speed_func;
     motor_p->speed = STOP_SPEED;
@@ -188,17 +187,17 @@ void BLDC_MOTOR_Init(bldc_motor_t * const motor_p, TIM_HandleTypeDef *timer_p, u
 
 /**
  * The function creates and initializes a BLDC motor structure.
- * 
+ *
  * @param timer_p The parameter "timer_p" is a pointer to a structure of type "TIM_HandleTypeDef". This
  * structure is typically used to configure and control a timer peripheral in a microcontroller. It
  * contains various fields such as the timer's base address, prescaler value, counter mode, etc.
  * @param timChannel The `timChannel` parameter is the channel of the timer peripheral that will be
  * used for controlling the BLDC motor. The specific value of `timChannel` will depend on the timer
  * peripheral being used.
- * 
+ *
  * @return a pointer to a structure of type bldc_motor_t.
  */
-bldc_motor_t *BLDC_MOTOR_Create(TIM_HandleTypeDef * timer_p, uint32_t timChannel)
+bldc_motor_t *BLDC_MOTOR_Create(TIM_HandleTypeDef *timer_p, uint32_t timChannel)
 {
     bldc_motor_t *motor_p = malloc(sizeof(bldc_motor_t));
     if (motor_p != NULL)
@@ -208,13 +207,12 @@ bldc_motor_t *BLDC_MOTOR_Create(TIM_HandleTypeDef * timer_p, uint32_t timChannel
     return motor_p;
 }
 
-
 /**
  * The function `BLDC_MOTOR_Destroy` is used to free the memory allocated for a BLDC motor object.
- * 
+ *
  * @param motor_p A pointer to a structure representing a BLDC motor.
  */
-void BLDC_MOTOR_Destroy(bldc_motor_t * const motor_p)
+void BLDC_MOTOR_Destroy(bldc_motor_t *const motor_p)
 {
     free(motor_p);
 }

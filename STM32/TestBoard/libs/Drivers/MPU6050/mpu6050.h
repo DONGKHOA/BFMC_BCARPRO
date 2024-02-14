@@ -77,7 +77,6 @@ typedef struct _Angle
 	float Filt_yaw;
 } Angle_t;
 
-// struct imu_6050;
 typedef struct imu_6050 imu_6050_t;
 
 struct imu_6050
