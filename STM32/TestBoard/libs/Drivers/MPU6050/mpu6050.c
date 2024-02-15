@@ -158,18 +158,11 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
 	if (who_am_i == 0x68)
 	{
 		// error = 20;
-		//		printf("MPU6050 who_am_i = 0x%02x...OK\n", who_am_i);
 	}
 	else
 	{
 		// error = 404;
-		//		printf("ERROR!\n");
-		//		printf("MPU6050 who_am_i : 0x%02x should be 0x68\n", who_am_i);
-		while (1)
-		{
-			//			printf("who am i error. Can not recognize mpu6050\n");
-			HAL_Delay(100);
-		}
+		while (1);
 	}
 
 	// Reset the whole module before initialization
@@ -228,7 +221,6 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
 	MPU6050_Writebyte(MPU6050_INT_ENABLE, DATA_RDY_EN);
 	HAL_Delay(50);
 
-	//	printf("MPU6050 setting is finished\n");
 }
 
 /**
