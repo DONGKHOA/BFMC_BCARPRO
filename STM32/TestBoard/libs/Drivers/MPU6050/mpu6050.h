@@ -52,6 +52,10 @@ typedef struct _MPU6050
 	float gyro_x;
 	float gyro_y;
 	float gyro_z;
+
+	float cal_gyx;
+	float cal_gyy;
+	float cal_gyz;
 } MPU6050_t;
 
 typedef struct _Angle
@@ -75,6 +79,7 @@ typedef struct _Angle
 	float Filt_roll;
 	float Filt_pitch;
 	float Filt_yaw;
+
 } Angle_t;
 
 typedef struct imu_6050 imu_6050_t;
