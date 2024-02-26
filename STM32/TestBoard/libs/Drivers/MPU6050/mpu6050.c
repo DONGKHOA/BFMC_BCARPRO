@@ -1,14 +1,14 @@
-r/*********************
- *      INCLUDES
- *********************/
+r /*********************
+   *      INCLUDES
+   *********************/
 
 #include "mpu6050.h"
 #include <stdlib.h>
 
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
-float LSB_Sensitivity_ACC;
+	/**********************
+	 *   GLOBAL FUNCTIONS
+	 **********************/
+	float LSB_Sensitivity_ACC;
 float LSB_Sensitivity_GYRO;
 void MPU6050_Writebyte(uint8_t reg_addr, uint8_t val)
 
@@ -39,7 +39,7 @@ void MPU6050_Readbytes(uint8_t reg_addr, uint8_t len, uint8_t *data)
 /**
  * The function `MPU6050_Get6AxisRawData` reads raw data from the MPU6050 sensor and stores it in the
  * `imu_6050_t` structure.
- * 
+ *
  * @param mpu6050 The parameter "mpu6050" is a pointer to a structure of type "imu_6050_t". This
  * structure likely contains variables to store the raw data values for accelerometer, gyroscope, and
  * temperature readings from the MPU6050 sensor.
@@ -63,7 +63,7 @@ void MPU6050_Get6AxisRawData(imu_6050_t *mpu6050)
 /**
  * The function calculates the LSB sensitivity for the MPU6050 gyroscope and accelerometer based on the
  * given full-scale range values.
- * 
+ *
  * @param FS_SCALE_GYRO FS_SCALE_GYRO is a parameter that represents the full-scale range for the
  * gyroscope. It determines the sensitivity of the gyroscope measurements. The possible values for
  * FS_SCALE_GYRO are 0, 1, 2, and 3, representing different sensitivity levels.
@@ -75,35 +75,35 @@ void MPU6050_Get6AxisRawData(imu_6050_t *mpu6050)
 void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 {
 	switch (FS_SCALE_GYRO)
-		{
-		case 0:
-			LSB_Sensitivity_GYRO = 131.f;
-			break;
-		case 1:
-			LSB_Sensitivity_GYRO = 65.5f;
-			break;
-		case 2:
-			LSB_Sensitivity_GYRO = 32.8f;
-			break;
-		case 3:
-			LSB_Sensitivity_GYRO = 16.4f;
-			break;
-		}
+	{
+	case 0:
+		LSB_Sensitivity_GYRO = 131.f;
+		break;
+	case 1:
+		LSB_Sensitivity_GYRO = 65.5f;
+		break;
+	case 2:
+		LSB_Sensitivity_GYRO = 32.8f;
+		break;
+	case 3:
+		LSB_Sensitivity_GYRO = 16.4f;
+		break;
+	}
 	switch (FS_SCALE_ACC)
-		{
-		case 0:
-			LSB_Sensitivity_ACC = 16384.f;
-			break;
-		case 1:
-			LSB_Sensitivity_ACC = 8192.f;
-			break;
-		case 2:
-			LSB_Sensitivity_ACC = 4096.f;
-			break;
-		case 3:
-			LSB_Sensitivity_ACC = 2048.f;
-			break;
-		}
+	{
+	case 0:
+		LSB_Sensitivity_ACC = 16384.f;
+		break;
+	case 1:
+		LSB_Sensitivity_ACC = 8192.f;
+		break;
+	case 2:
+		LSB_Sensitivity_ACC = 4096.f;
+		break;
+	case 3:
+		LSB_Sensitivity_ACC = 2048.f;
+		break;
+	}
 }
 
 /*Convert Unit. acc_raw -> g, gyro_raw -> degree per second*/
@@ -111,7 +111,7 @@ void MPU6050_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 /**
  * The function MPU6050_DataConvert converts raw data from an MPU6050 sensor to meaningful values for
  * acceleration, temperature, and gyroscope readings.
- * 
+ *
  * @param mpu6050 mpu6050 is a pointer to a structure of type imu_6050_t. This structure contains
  * various fields such as acc_x_raw, acc_y_raw, acc_z_raw, temperature_raw, gyro_x_raw, gyro_y_raw,
  * gyro_z_raw, acc_x, acc_y, acc_z
@@ -126,16 +126,16 @@ void MPU6050_DataConvert(imu_6050_t *mpu6050)
 	mpu6050->pt1_p->temperature = (float)(mpu6050->pt1_p->temperature_raw) / 340 + 36.53;
 	mpu6050->pt1_p->temperature = (float)(mpu6050->pt1_p->temperature_raw) / 340 + 36.53;
 
-	mpu6050->pt1_p->gyro_x = mpu6050->pt1_p->gyro_x_raw / LSB_Sensitivity_GYRO;
-	mpu6050->pt1_p->gyro_y = mpu6050->pt1_p->gyro_y_raw / LSB_Sensitivity_GYRO;
-	mpu6050->pt1_p->gyro_z = mpu6050->pt1_p->gyro_z_raw / LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_x = (mpu6050->pt1_p->gyro_x_raw - mpu6050->pt1_p->cal_gyx)/ LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_y = (mpu6050->pt1_p->gyro_y_raw - mpu6050->pt1_p->cal_gyy)/ LSB_Sensitivity_GYRO;
+	mpu6050->pt1_p->gyro_z = (mpu6050->pt1_p->gyro_z_raw - mpu6050->pt1_p->cal_gyz)/ LSB_Sensitivity_GYRO;
 }
 
 // input: con tro de lay gia tri cac truc luu vao struct
 /**
  * The function MPU6050_ProcessData processes raw data from the MPU6050 sensor by calling two other
  * functions.
- * 
+ *
  * @param mpu6050 The parameter "mpu6050" is a pointer to a structure of type "imu_6050_t". This
  * structure likely contains variables and/or arrays to store the raw data and converted data from the
  * MPU6050 sensor.
@@ -162,7 +162,8 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
 	else
 	{
 		// error = 404;
-		while (1);
+		while (1)
+			;
 	}
 
 	// Reset the whole module before initialization
@@ -220,7 +221,46 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
 	uint8_t DATA_RDY_EN = 0x1; // 1 - enable, 0 - disable
 	MPU6050_Writebyte(MPU6050_INT_ENABLE, DATA_RDY_EN);
 	HAL_Delay(50);
+}
 
+/**
+ * The function `MPU_calibrateGyro` calibrates the gyroscope of an MPU6050 sensor by averaging a
+ * specified number of raw data points.
+ * 
+ * @param mpu6050 The `mpu6050` parameter is a pointer to a structure of type `MPU6050_t`, which likely
+ * contains data related to an MPU6050 sensor module. The function `MPU_calibrateGyro` calibrates the
+ * gyroscope of the MPU6050 sensor by taking
+ * @param numCalPoints The `numCalPoints` parameter in the `MPU_calibrateGyro` function represents the
+ * number of data points to be collected for calibrating the gyroscope. It specifies how many readings
+ * will be taken to calculate the average gyroscope offset values.
+ */
+void MPU_calibrateGyro(MPU6050_t *mpu6050, uint16_t numCalPoints)
+{
+	// Init
+	int32_t xx = 0;
+	int32_t yy = 0;
+	int32_t zz = 0;
+
+	// Zero guard
+	if (numCalPoints == 0)
+	{
+		numCalPoints = 1;
+	}
+
+	// Save specified number of points
+	for (uint16_t ii = 0; ii < numCalPoints; ii++)
+	{
+		MPU6050_Get6AxisRawData(&mpu6050);
+		xx += mpu6050->gyro_x_raw;
+		yy += mpu6050->gyro_y_raw;
+		zz += mpu6050->gyro_z_raw;
+		HAL_Delay(3);
+	}
+
+	// Average the saved data points to find the gyroscope offset
+	mpu6050->cal_gyx = (float)xx / (float)numCalPoints;
+	mpu6050->cal_gyy = (float)yy / (float)numCalPoints;
+	mpu6050->cal_gyz = (float)zz / (float)numCalPoints;
 }
 
 /**
