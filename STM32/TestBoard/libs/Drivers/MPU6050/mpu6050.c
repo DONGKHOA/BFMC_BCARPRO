@@ -1,4 +1,4 @@
-/*********************
+r/*********************
  *      INCLUDES
  *********************/
 
@@ -155,7 +155,7 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
 	//	printf("Checking MPU6050...\n");
 
 	MPU6050_Readbyte(MPU6050_WHO_AM_I, &who_am_i);
-	if (who_am_i == 0x68)
+	if (who_am_i == 0x71)
 	{
 		// error = 20;
 	}
