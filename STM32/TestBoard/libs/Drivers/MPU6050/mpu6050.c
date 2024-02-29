@@ -236,7 +236,7 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
  */
 void MPU_calibrateGyro(MPU6050_t *mpu6050, uint16_t numCalPoints)
 {
-	// Init
+	// // Init
 	// int32_t xx = 0;
 	// int32_t yy = 0;
 	// int32_t zz = 0;
