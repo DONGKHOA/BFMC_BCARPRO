@@ -101,23 +101,25 @@ void BUTTON_Init(button_t *const button_p, GPIO_TypeDef *buttonPort, uint16_t GP
 	if (is_initialize == 0)
 	{
 		button_event = xEventGroupCreate();
-		button_queue_data = xQueueCreate(1, sizeof(button_t));
+		button_queue_data = xQueueCreate(10, sizeof(button_t *));
 
 		button_time_pressing = xTimerCreate("button_time_pressing",
 											PRESSING_TIMEOUT / portTICK_PERIOD_MS,
 											pdFALSE, (void *)0, BUTTON_Timer_CallBack_Function);
 
 		xTaskCreate(BUTTON_Debouncing_Task, "BUTTON_Debouncing_Task",
-					128, NULL, osPriorityHigh, &button_debouncing_task);
+					128 * 2, NULL, osPriorityHigh, &button_debouncing_task);
 
 		xTaskCreate(BUTTON_Executing_Task, "BUTTON_Executing_Task",
-					128, NULL, osPriorityAboveNormal, &button_executing_task);
+					128 * 2, NULL, osPriorityAboveNormal, &button_executing_task);
 		is_initialize = 1;
 	}
 }
 
 void BUTTON_Exit_Handle(button_t *const button_p)
 {
+	xQueueSend(button_queue_data, (void *)&button_p, 0);
+
 }
 
 /**********************

@@ -14,11 +14,15 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
     {
     case FORWARD:
         /* code */
-        motor_p->timer_p->Instance->CCR1 = 80;
+    	motor_p->direction = COUNTER_CLOCKWISE;
+        servo_p->set_steering(servo_p);
+        motor_p->set_speed(motor_p);
         break;
     case BACKWARD:
         /* code */
-        motor_p->timer_p->Instance->CCR1 = 70;
+    	motor_p->direction = CLOCKWISE;
+        servo_p->set_steering(servo_p);
+        motor_p->set_speed(motor_p);
         break;
     default:
         break;
@@ -29,17 +33,17 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
     case LEFT:
         /* code */
         servo_p->duty_steering -= 5;
-        motor_p->timer_p->Instance->CCR1 = 80;
+        servo_p->set_steering(servo_p);
         break;
     case RIGHT:
         /* code */
         servo_p->duty_steering += 5;
-        motor_p->timer_p->Instance->CCR1 = 80;
+        servo_p->set_steering(servo_p);
         break;
     case RESET:
         /* code */
         servo_p->duty_steering = 50;
-        motor_p->timer_p->Instance->CCR1 = 75;
+        servo_p->set_steering(servo_p);
         break;
     case CAM:
         /* code */
