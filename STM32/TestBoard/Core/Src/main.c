@@ -26,6 +26,7 @@
 #include "hc_sr04.h"
 #include "servo_motor.h"
 #include "button.h"
+#include "ps2.h"
 
 /* USER CODE END Includes */
 
