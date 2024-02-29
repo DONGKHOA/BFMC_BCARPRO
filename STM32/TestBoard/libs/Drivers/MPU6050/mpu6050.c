@@ -237,30 +237,30 @@ void IMU_6050_Init(imu_6050_t *imu_p, void (*get_data_func)(imu_6050_t *imu_p))
 void MPU_calibrateGyro(MPU6050_t *mpu6050, uint16_t numCalPoints)
 {
 	// Init
-	int32_t xx = 0;
-	int32_t yy = 0;
-	int32_t zz = 0;
+	// int32_t xx = 0;
+	// int32_t yy = 0;
+	// int32_t zz = 0;
 
-	// Zero guard
-	if (numCalPoints == 0)
-	{
-		numCalPoints = 1;
-	}
+	// // Zero guard
+	// if (numCalPoints == 0)
+	// {
+	// 	numCalPoints = 1;
+	// }
 
-	// Save specified number of points
-	for (uint16_t ii = 0; ii < numCalPoints; ii++)
-	{
-		MPU6050_Get6AxisRawData(&mpu6050);
-		xx += mpu6050->gyro_x_raw;
-		yy += mpu6050->gyro_y_raw;
-		zz += mpu6050->gyro_z_raw;
-		HAL_Delay(3);
-	}
+	// // Save specified number of points
+	// for (uint16_t ii = 0; ii < numCalPoints; ii++)
+	// {
+	// 	MPU6050_Get6AxisRawData(mpu6050);
+	// 	xx += mpu6050->gyro_x_raw;
+	// 	yy += mpu6050->gyro_y_raw;
+	// 	zz += mpu6050->gyro_z_raw;
+	// 	HAL_Delay(3);
+	// }
 
-	// Average the saved data points to find the gyroscope offset
-	mpu6050->cal_gyx = (float)xx / (float)numCalPoints;
-	mpu6050->cal_gyy = (float)yy / (float)numCalPoints;
-	mpu6050->cal_gyz = (float)zz / (float)numCalPoints;
+	// // Average the saved data points to find the gyroscope offset
+	// mpu6050->cal_gyx = (float)xx / (float)numCalPoints;
+	// mpu6050->cal_gyy = (float)yy / (float)numCalPoints;
+	// mpu6050->cal_gyz = (float)zz / (float)numCalPoints;
 }
 
 /**

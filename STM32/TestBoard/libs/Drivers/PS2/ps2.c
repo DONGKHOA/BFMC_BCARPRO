@@ -1,10 +1,10 @@
 #include "ps2.h"
 
-void PS2_Data(SPI_HandleTypeDef *hspi, servo_motor_t *const servo_p, bldc_motor_t *const motor_p)
+void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi, servo_motor_t *const servo_p, bldc_motor_t *const motor_p)
 {
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(gpio, pin, GPIO_PIN_RESET);
     HAL_SPI_TransmitReceive(hspi, PSX_TX, PSX_RX, 8, 100);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(gpio, pin, GPIO_PIN_SET);
 
     switch (PSX_RX[3])
     {
@@ -44,3 +44,4 @@ void PS2_Data(SPI_HandleTypeDef *hspi, servo_motor_t *const servo_p, bldc_motor_
         break;
     }
 }
+ 

@@ -15,6 +15,6 @@
 uint8_t PSX_RX[8];
 uint8_t PSX_TX[8] = {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-void PS2_Data(SPI_HandleTypeDef *hspi, servo_motor_t *const servo_p, bldc_motor_t *const motor_p);
+void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi, servo_motor_t *const servo_p, bldc_motor_t *const motor_p);
 #endif
  
