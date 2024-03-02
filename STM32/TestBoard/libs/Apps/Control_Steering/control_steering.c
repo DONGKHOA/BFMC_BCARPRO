@@ -44,7 +44,14 @@ void PID_CONTROL_Set_Parameters(control_steering_t *const control_p)
 uint32_t PID_CONTROL_Set_control(control_steering_t *const control_p)
 {
     // Error
-	control_p->error = control_p->reference - abs(control_p->angle0 - control_p->angle1);
+	if (reference > 0)
+	{
+		control_p->error = control_p->reference - fabs(control_p->angle1 - control_p->angle0);
+	}
+	else if (reference < 0)
+	{
+		control_p->error = control_p->reference + fabs(control_p->angle1 - control_p->angle0);
+	}
     control_p->angle0 = control_p->angle1;
     // PID Kp, Ki, Kd part
     control_p->Kp_part = control_p->Kp * (control_p->error - control_p->pre_error);
@@ -84,7 +91,8 @@ void PID_CONTROL_Init(control_steering_t * const control_p,
     control_p->set_control = set_control_func;
     PID_CONTROL_Reset_Parameters(control_p);
     PID_CONTROL_Set_Parameters(control_p);
-    control_p->distance = 0.0f;
+    control_p->angle1 = 0.0f;
+    control_p->angle0 = 0.0f;
     PID_CONTROL_Set_control(control_p);
 }
 

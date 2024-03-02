@@ -20,7 +20,7 @@
 #define KP_VALUE 10.0f;
 #define KI_VALUE 10.0f;
 #define KD_VALUE 10.0f;
-#define TS_VALUE 0.05f;
+#define TS_VALUE 0.01f;
 #define INF_VALUE 75;
 #define SUP_VALUE 25;
 
@@ -60,4 +60,4 @@ struct control_steering
 control_steering_t *PID_CONTROL_Create();
 void PID_CONTROL_Destroy(control_steering_t * const control_p);
 
-#endif /* MIDDLEWARES_FUZZY_CONTROL_FUZZY_CONTROL_H_ */
+#endif /* MIDDLEWARES_PID_CONTROL_H_ */
