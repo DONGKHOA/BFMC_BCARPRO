@@ -8,5 +8,14 @@
 		<item key="SmartImportRootWizardPage.STORE_CLOSE_IMPORTED" value="false"/>
 		<item key="SmartImportRootWizardPage.STORE_NESTED_PROJECTS" value="true"/>
 		<item key="SmartImportRootWizardPage.STORE_CONFIGURE_NATURES" value="true"/>
+		<list key="org.eclipse.ui.internal.wizards.datatransfer.SmartImportRootWizardPage.knownSources">
+			<item value="D:\BFMC_BCARPRO\STM32"/>
+			<item value="D:\BFMC_BCARPRO\STM32\TestBoard"/>
+			<item value="D:\BFMC_BCARPRO"/>
+			<item value="D:\PROJECT\BFMC\Project data\STM32\steering"/>
+			<item value="D:\PROJECT\BFMC\Project data\STM32\test"/>
+			<item value="C:\Users\admin\Downloads\Balancing-Robot-main"/>
+			<item value="D:\PROJECT\BFMC\Project data\STM32\steering\Test_PID"/>
+		</list>
 	</section>
 </section>
