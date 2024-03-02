@@ -91,6 +91,8 @@ void Error_Handler(void);
 #define TRIG_1_GPIO_Port GPIOA
 #define SPI_CS_RAS_Pin GPIO_PIN_6
 #define SPI_CS_RAS_GPIO_Port GPIOB
+#define CONTROL_RAS_Pin GPIO_PIN_7
+#define CONTROL_RAS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
