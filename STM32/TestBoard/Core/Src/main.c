@@ -66,6 +66,12 @@ osThreadId receiveDataSpiHandle;
 osThreadId getDistance_SR0Handle;
 /* USER CODE BEGIN PV */
 
+// Queue Init
+
+static QueueHandle_t spi_queue_data = NULL;
+
+// Semaphore
+
 // BLDC motor driver
 
 bldc_motor_t *bldc_motor_0;
@@ -97,7 +103,7 @@ uint32_t temp_systick = 0;
 uint8_t rx_buff = 0;
 
 // array store data after receiving from spi communication
-uint8_t spi_buff[5];
+uint8_t spi_buff[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 // index in array
 uint8_t position_spi = 0;
@@ -144,6 +150,14 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 void SPI_Handle_Data(void)
 {
+#if !DEBUG
+  if (spi_flag == 1)
+  {
+    // send queue
+    spi_flag = 0;
+  }
+
+#endif
 }
 /* USER CODE END 0 */
 
@@ -252,8 +266,10 @@ int main(void)
   /* add threads, ... */
 #if DEBUG
   vTaskDelete(receiveDataSpiHandle);
+  vTaskDelete(situationHandle);
   HAL_SPI_DeInit(&hspi1);
-#elif
+#else
+  spi_queue_data = xQueueCreate(5, sizeof(uint8_t));
   vTaskDelete(ps2ControlHandle);
   HAL_SPI_DeInit(&hspi3);
   HAL_SPI_Receive_IT(&hspi1, &rx_buff, 1);
