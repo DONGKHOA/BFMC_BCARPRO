@@ -1,4 +1,5 @@
 #include "control_steering.h"
+#include "math.h"
 
 /**
  * The function PID_CONTROL_Reset_Parameters resets the error and output parameters of a PID controller
@@ -44,11 +45,11 @@ void PID_CONTROL_Set_Parameters(control_steering_t *const control_p)
 uint32_t PID_CONTROL_Set_control(control_steering_t *const control_p)
 {
     // Error
-	if (reference > 0)
+	if (control_p->reference > 0)
 	{
 		control_p->error = control_p->reference - fabs(control_p->angle1 - control_p->angle0);
 	}
-	else if (reference < 0)
+	else if (control_p->reference < 0)
 	{
 		control_p->error = control_p->reference + fabs(control_p->angle1 - control_p->angle0);
 	}
