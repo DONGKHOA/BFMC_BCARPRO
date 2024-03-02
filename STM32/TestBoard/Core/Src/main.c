@@ -74,42 +74,41 @@ static QueueHandle_t spi_queue_data = NULL;
 
 // BLDC motor driver
 
-bldc_motor_t *bldc_motor_0;
+static bldc_motor_t *bldc_motor_0;
 
 // SR04 measure distance from car to barrier
 
-SR04Driver_t *sr04_0;
-SR04Driver_t *sr04_1;
-SR04Driver_t *sr04_2;
-SR04Driver_t *sr04_3;
+static SR04Driver_t *sr04_0;
+static SR04Driver_t *sr04_1;
+static SR04Driver_t *sr04_2;
+static SR04Driver_t *sr04_3;
 
 // Servo Motor driver
 
-servo_motor_t *steering_motor_p;
-servo_motor_t *camera_motor_p;
+static servo_motor_t *steering_motor_p;
+static servo_motor_t *camera_motor_p;
 
 // imu9250
 
-imu_9250_t *imu_9250_p;
+static imu_9250_t *imu_9250_p;
 uint16_t error;
-uint8_t temp = 0;
-Struct_Angle Angle;
+static Struct_Angle Angle;
 uint32_t temp_systick = 0;
 
-#if !DEBUG
+#if !DEBUG_USER
 // Variable of SPI
 
 // data is receive from spi communication
-uint8_t rx_buff = 0;
+static uint8_t rx_buff = 0;
 
 // array store data after receiving from spi communication
-uint8_t spi_buff[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+static uint8_t spi_buff[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 // index in array
-uint8_t position_spi = 0;
+static uint8_t position_spi = 0;
 
 // flag notify complete receive data
-uint8_t spi_flag = 0;
+static uint8_t spi_flag = 0;
 #endif
 /* USER CODE END PV */
 
@@ -150,7 +149,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 void SPI_Handle_Data(void)
 {
-#if !DEBUG
+#if !DEBUG_USER
   if (spi_flag == 1)
   {
     // send queue
@@ -264,7 +263,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-#if DEBUG
+#if DEBUG_USER
   vTaskDelete(receiveDataSpiHandle);
   vTaskDelete(situationHandle);
   HAL_SPI_DeInit(&hspi1);
