@@ -25,7 +25,6 @@
 #include "bldc_motor.h"
 #include "hc_sr04.h"
 #include "servo_motor.h"
-#include "button.h"
 #include "ps2.h"
 
 /* USER CODE END Includes */
@@ -49,6 +48,7 @@
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi3;
 DMA_HandleTypeDef hdma_spi1_rx;
 
 TIM_HandleTypeDef htim1;
@@ -60,6 +60,7 @@ osThreadId situationHandle;
 osThreadId controlSpeedingHandle;
 osThreadId controlSteeringHandle;
 osThreadId controlCameraTaHandle;
+osThreadId taskPs2Handle;
 /* USER CODE BEGIN PV */
 
 // BLDC motor driver
@@ -79,7 +80,8 @@ servo_motor_t *steering_motor_p;
 
 // Button driver init bldc motor
 
-button_t *button_0;
+extern uint8_t PSX_RX[8];
+extern uint8_t PSX_TX[8];
 
 // Initialize
 
@@ -96,11 +98,13 @@ static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_SPI3_Init(void);
 void StartReceiveSpiTask(void const * argument);
 void StartSituation(void const * argument);
 void StartControlSpeeding(void const * argument);
 void StartControlSteering(void const * argument);
 void StartControlCameraTask(void const * argument);
+void startTaskPs2(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -109,23 +113,6 @@ void StartControlCameraTask(void const * argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  if (GPIO_Pin == MOTOR_BLDC_Pin)
-  {
-    button_0->exti_handle(button_0);
-  }
-}
-
-void BUTTON_Long_Pressing_Callback(button_t *const button_p)
-{
-  is_initialize = 1;
-}
-
-void BUTTON_Releasing_Callback(button_t *const button_p)
-{
-  is_initialize = 0;
-}
 
 /* USER CODE END 0 */
 
@@ -163,10 +150,15 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
+  MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
   bldc_motor_0 = BLDC_MOTOR_Create(&htim3, TIM_CHANNEL_3);
+  HAL_Delay(2000);
+  bldc_motor_0->speed = HIGH_SPEED;
+  bldc_motor_0->direction = COUNTER_CLOCKWISE;
+  bldc_motor_0->set_speed(bldc_motor_0);
 
-  button_0 = BUTTON_Create(INIT_MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
+//  button_0 = BUTTON_Create(INIT_MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
 
   sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
   sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
@@ -213,6 +205,10 @@ int main(void)
   osThreadDef(controlCameraTa, StartControlCameraTask, osPriorityLow, 0, 128);
   controlCameraTaHandle = osThreadCreate(osThread(controlCameraTa), NULL);
 
+  /* definition and creation of taskPs2 */
+  osThreadDef(taskPs2, startTaskPs2, osPriorityNormal, 0, 256);
+  taskPs2Handle = osThreadCreate(osThread(taskPs2), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -249,13 +245,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 70;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 15;
+  RCC_OscInitStruct.PLL.PLLN = 84;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -269,7 +264,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV8;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
@@ -350,6 +345,44 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief SPI3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI3_Init(void)
+{
+
+  /* USER CODE BEGIN SPI3_Init 0 */
+
+  /* USER CODE END SPI3_Init 0 */
+
+  /* USER CODE BEGIN SPI3_Init 1 */
+
+  /* USER CODE END SPI3_Init 1 */
+  /* SPI3 parameter configuration*/
+  hspi3.Instance = SPI3;
+  hspi3.Init.Mode = SPI_MODE_MASTER;
+  hspi3.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  hspi3.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi3.Init.NSS = SPI_NSS_SOFT;
+  hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+  hspi3.Init.FirstBit = SPI_FIRSTBIT_LSB;
+  hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi3.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI3_Init 2 */
+
+  /* USER CODE END SPI3_Init 2 */
+
+}
+
+/**
   * @brief TIM1 Initialization Function
   * @param None
   * @retval None
@@ -369,7 +402,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 1400-1;
+  htim1.Init.Prescaler = 349;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 1000-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -438,7 +471,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 1400-1;
+  htim3.Init.Prescaler = 112-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 1000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -551,9 +584,10 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin, GPIO_PIN_RESET);
@@ -564,11 +598,8 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(TRIG_1_GPIO_Port, TRIG_1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : INIT_MOTOR_BLDC_Pin */
-  GPIO_InitStruct.Pin = INIT_MOTOR_BLDC_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(INIT_MOTOR_BLDC_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LED_INIT_BLDC_Pin TRIG_3_Pin TRIG_4_Pin */
   GPIO_InitStruct.Pin = LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin;
@@ -609,9 +640,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(TRIG_1_GPIO_Port, &GPIO_InitStruct);
 
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI1_IRQn, 6, 0);
-  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+  /*Configure GPIO pin : PD2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -671,6 +705,7 @@ void StartControlSpeeding(void const * argument)
   /* Infinite loop */
   for (;;)
   {
+//	  temp = HAL_GPIO_ReadPin(MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
 
     osDelay(1);
   }
@@ -691,7 +726,8 @@ void StartControlSteering(void const * argument)
   /* Infinite loop */
   for (;;)
   {
-
+//	  steering_motor_p->duty_steering = 75;
+//	  steering_motor_p->set_steering(steering_motor_p);
     osDelay(1);
   }
   /* USER CODE END StartControlSteering */
@@ -713,6 +749,25 @@ void StartControlCameraTask(void const * argument)
     osDelay(1);
   }
   /* USER CODE END StartControlCameraTask */
+}
+
+/* USER CODE BEGIN Header_startTaskPs2 */
+/**
+* @brief Function implementing the taskPs2 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_startTaskPs2 */
+void startTaskPs2(void const * argument)
+{
+  /* USER CODE BEGIN startTaskPs2 */
+  /* Infinite loop */
+  for(;;)
+  {
+	  PS2_Data(GPIOD, GPIO_PIN_2, &hspi3, steering_motor_p, bldc_motor_0);
+    osDelay(1);
+  }
+  /* USER CODE END startTaskPs2 */
 }
 
 /**

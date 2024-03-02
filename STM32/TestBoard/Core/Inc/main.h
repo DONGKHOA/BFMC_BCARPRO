@@ -59,9 +59,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define INIT_MOTOR_BLDC_Pin GPIO_PIN_1
-#define INIT_MOTOR_BLDC_GPIO_Port GPIOC
-#define INIT_MOTOR_BLDC_EXTI_IRQn EXTI1_IRQn
 #define SPI_RAS_SCK_Pin GPIO_PIN_5
 #define SPI_RAS_SCK_GPIO_Port GPIOA
 #define SPI_RAS_MISO_Pin GPIO_PIN_6
