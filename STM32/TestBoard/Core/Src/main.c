@@ -27,6 +27,7 @@
 #include "servo_motor.h"
 #include "ps2.h"
 #include "mpu9250_app.h"
+#include "debug.h"
 
 /* USER CODE END Includes */
 
@@ -50,18 +51,19 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
-DMA_HandleTypeDef hdma_spi1_rx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
-osThreadId receiveSpiTaskHandle;
+osThreadId getDataIMUHandle;
 osThreadId situationHandle;
 osThreadId controlSpeedingHandle;
 osThreadId controlSteeringHandle;
 osThreadId controlCameraTaHandle;
-osThreadId taskPs2Handle;
+osThreadId ps2ControlHandle;
+osThreadId receiveDataSpiHandle;
+osThreadId getDistance_SR0Handle;
 /* USER CODE BEGIN PV */
 
 // BLDC motor driver
@@ -78,11 +80,7 @@ SR04Driver_t *sr04_3;
 // Servo Motor driver
 
 servo_motor_t *steering_motor_p;
-
-// Button driver init bldc motor
-
-extern uint8_t PSX_RX[8];
-extern uint8_t PSX_TX[8];
+servo_motor_t *camera_motor_p;
 
 // imu9250
 
@@ -91,24 +89,41 @@ uint16_t error;
 uint8_t temp = 0;
 Struct_Angle Angle;
 uint32_t temp_systick = 0;
+
+#if !DEBUG
+// Variable of SPI
+
+// data is receive from spi communication
+uint8_t rx_buff = 0;
+
+// array store data after receiving from spi communication
+uint8_t spi_buff[5];
+
+// index in array
+uint8_t position_spi = 0;
+
+// flag notify complete receive data
+uint8_t spi_flag = 0;
+#endif
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_SPI3_Init(void);
-void StartReceiveSpiTask(void const * argument);
-void StartSituation(void const * argument);
-void StartControlSpeeding(void const * argument);
-void StartControlSteering(void const * argument);
-void StartControlCameraTask(void const * argument);
-void startTaskPs2(void const * argument);
+void StartgetDataIMU(void const *argument);
+void StartSituation(void const *argument);
+void StartControlSpeeding(void const *argument);
+void StartControlSteering(void const *argument);
+void StartControlCameraTask(void const *argument);
+void startps2Control(void const *argument);
+void StartreceiveDataSpi(void const *argument);
+void StartgetDistance_SR04(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -116,14 +131,26 @@ void startTaskPs2(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+extern void calibrateGyro(imu_9250_t *mpu9250, uint16_t numCalPoints);
 
+// Interrupt function of spi (RX)
 
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+  if (hspi->Instance == hspi1.Instance)
+  {
+  }
+}
+
+void SPI_Handle_Data(void)
+{
+}
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -148,7 +175,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_TIM1_Init();
@@ -158,20 +184,19 @@ int main(void)
   /* USER CODE BEGIN 2 */
   bldc_motor_0 = BLDC_MOTOR_Create(&htim3, TIM_CHANNEL_3);
   steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
+  camera_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_2);
 
-//  button_0 = BUTTON_Create(INIT_MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
-//
-//  sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
-//  sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
-//  sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
-//  sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
+  sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
+  sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
+  sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
+  sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
   HAL_Delay(2000);
   bldc_motor_0->speed = LOW_SPEED;
   bldc_motor_0->direction = COUNTER_CLOCKWISE;
   bldc_motor_0->set_speed(bldc_motor_0);
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, 1);
-  imu_9250_p = IMU_9250_Create();//
-  calibrateGyro(imu_9250_p, 999);//
+
+  imu_9250_p = IMU_9250_Create();
+  calibrateGyro(imu_9250_p, 999);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -191,9 +216,9 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of receiveSpiTask */
-  osThreadDef(receiveSpiTask, StartReceiveSpiTask, osPriorityHigh, 0, 128 * 3);
-  receiveSpiTaskHandle = osThreadCreate(osThread(receiveSpiTask), NULL);
+  /* definition and creation of getDataIMU */
+  osThreadDef(getDataIMU, StartgetDataIMU, osPriorityHigh, 0, 128);
+  getDataIMUHandle = osThreadCreate(osThread(getDataIMU), NULL);
 
   /* definition and creation of situation */
   osThreadDef(situation, StartSituation, osPriorityAboveNormal, 0, 128);
@@ -211,12 +236,28 @@ int main(void)
   osThreadDef(controlCameraTa, StartControlCameraTask, osPriorityLow, 0, 128);
   controlCameraTaHandle = osThreadCreate(osThread(controlCameraTa), NULL);
 
-  /* definition and creation of taskPs2 */
-  osThreadDef(taskPs2, startTaskPs2, osPriorityNormal, 0, 256);
-  taskPs2Handle = osThreadCreate(osThread(taskPs2), NULL);
+  /* definition and creation of ps2Control */
+  osThreadDef(ps2Control, startps2Control, osPriorityHigh, 0, 128);
+  ps2ControlHandle = osThreadCreate(osThread(ps2Control), NULL);
+
+  /* definition and creation of receiveDataSpi */
+  osThreadDef(receiveDataSpi, StartreceiveDataSpi, osPriorityHigh, 0, 128);
+  receiveDataSpiHandle = osThreadCreate(osThread(receiveDataSpi), NULL);
+
+  /* definition and creation of getDistance_SR0 */
+  osThreadDef(getDistance_SR0, StartgetDistance_SR04, osPriorityRealtime, 0, 128);
+  getDistance_SR0Handle = osThreadCreate(osThread(getDistance_SR0), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+#if DEBUG
+  vTaskDelete(receiveDataSpiHandle);
+  HAL_SPI_DeInit(&hspi1);
+#elif
+  vTaskDelete(ps2ControlHandle);
+  HAL_SPI_DeInit(&hspi3);
+  HAL_SPI_Receive_IT(&hspi1, &rx_buff, 1);
+#endif
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -235,22 +276,22 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -265,9 +306,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV8;
@@ -280,10 +320,10 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief I2C1 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_I2C1_Init(void)
 {
 
@@ -310,14 +350,13 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
-
 }
 
 /**
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief SPI1 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_SPI1_Init(void)
 {
 
@@ -347,14 +386,13 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
-
 }
 
 /**
-  * @brief SPI3 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief SPI3 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_SPI3_Init(void)
 {
 
@@ -385,14 +423,13 @@ static void MX_SPI3_Init(void)
   /* USER CODE BEGIN SPI3_Init 2 */
 
   /* USER CODE END SPI3_Init 2 */
-
 }
 
 /**
-  * @brief TIM1 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM1 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM1_Init(void)
 {
 
@@ -408,9 +445,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 448-1;
+  htim1.Init.Prescaler = 448 - 1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 1000-1;
+  htim1.Init.Period = 1000 - 1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -454,14 +491,13 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
-
 }
 
 /**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM3_Init(void)
 {
 
@@ -477,9 +513,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 112-1;
+  htim3.Init.Prescaler = 112 - 1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 1000-1;
+  htim3.Init.Period = 1000 - 1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -513,14 +549,13 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
-
 }
 
 /**
-  * @brief TIM4 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM4 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM4_Init(void)
 {
 
@@ -535,7 +570,7 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 70-1;
+  htim4.Init.Prescaler = 70 - 1;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 65535;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -558,35 +593,18 @@ static void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 2 */
 
   /* USER CODE END TIM4_Init 2 */
-
 }
 
 /**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMA2_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA2_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
-
-}
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -596,10 +614,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, LED_INIT_BLDC_Pin | TRIG_3_Pin | TRIG_4_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TRIG_2_GPIO_Port, TRIG_2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, TRIG_2_Pin | CONTROL_RAS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(TRIG_1_GPIO_Port, TRIG_1_Pin, GPIO_PIN_RESET);
@@ -608,30 +626,30 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LED_INIT_BLDC_Pin TRIG_3_Pin TRIG_4_Pin */
-  GPIO_InitStruct.Pin = LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin;
+  GPIO_InitStruct.Pin = LED_INIT_BLDC_Pin | TRIG_3_Pin | TRIG_4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ECHO_3_Pin ECHO_4_Pin */
-  GPIO_InitStruct.Pin = ECHO_3_Pin|ECHO_4_Pin;
+  GPIO_InitStruct.Pin = ECHO_3_Pin | ECHO_4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ECHO_2_Pin SPI_CS_RAS_Pin */
-  GPIO_InitStruct.Pin = ECHO_2_Pin|SPI_CS_RAS_Pin;
+  GPIO_InitStruct.Pin = ECHO_2_Pin | SPI_CS_RAS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TRIG_2_Pin */
-  GPIO_InitStruct.Pin = TRIG_2_Pin;
+  /*Configure GPIO pins : TRIG_2_Pin CONTROL_RAS_Pin */
+  GPIO_InitStruct.Pin = TRIG_2_Pin | CONTROL_RAS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TRIG_2_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ECHO_1_Pin */
   GPIO_InitStruct.Pin = ECHO_1_Pin;
@@ -653,38 +671,38 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartReceiveSpiTask */
+/* USER CODE BEGIN Header_StartgetDataIMU */
 /**
- * @brief  Function implementing the receiveSpiTask thread.
+ * @brief  Function implementing the getDataIMU thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartReceiveSpiTask */
-void StartReceiveSpiTask(void const * argument)
+/* USER CODE END Header_StartgetDataIMU */
+void StartgetDataIMU(void const *argument)
 {
   /* USER CODE BEGIN 5 */
 
   /* Infinite loop */
   for (;;)
   {
-	imu_9250_p->get_data(imu_9250_p);
-	CalculateGyroAngle(&Angle, imu_9250_p);
-	if ((HAL_GetTick() -  temp_systick) == 3000)
-	{
-		temp_systick = 0;
-		MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x1 << 7);
-		osDelay(100);
-		MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x00);
-		osDelay(50);
-	}
+    imu_9250_p->get_data(imu_9250_p);
+    CalculateGyroAngle(&Angle, imu_9250_p);
+    if ((HAL_GetTick() - temp_systick) == 3000)
+    {
+      temp_systick = 0;
+      MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x1 << 7);
+      osDelay(100);
+      MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x00);
+      osDelay(50);
+    }
     osDelay(10);
   }
   /* USER CODE END 5 */
@@ -697,7 +715,7 @@ void StartReceiveSpiTask(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartSituation */
-void StartSituation(void const * argument)
+void StartSituation(void const *argument)
 {
   /* USER CODE BEGIN StartSituation */
   /* Infinite loop */
@@ -715,14 +733,13 @@ void StartSituation(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartControlSpeeding */
-void StartControlSpeeding(void const * argument)
+void StartControlSpeeding(void const *argument)
 {
   /* USER CODE BEGIN StartControlSpeeding */
 
   /* Infinite loop */
   for (;;)
   {
-//	  temp = HAL_GPIO_ReadPin(MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
 
     osDelay(1);
   }
@@ -736,15 +753,13 @@ void StartControlSpeeding(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartControlSteering */
-void StartControlSteering(void const * argument)
+void StartControlSteering(void const *argument)
 {
   /* USER CODE BEGIN StartControlSteering */
 
   /* Infinite loop */
   for (;;)
   {
-//	  steering_motor_p->duty_steering = 75;
-//	  steering_motor_p->set_steering(steering_motor_p);
     osDelay(1);
   }
   /* USER CODE END StartControlSteering */
@@ -757,7 +772,7 @@ void StartControlSteering(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartControlCameraTask */
-void StartControlCameraTask(void const * argument)
+void StartControlCameraTask(void const *argument)
 {
   /* USER CODE BEGIN StartControlCameraTask */
   /* Infinite loop */
@@ -768,39 +783,75 @@ void StartControlCameraTask(void const * argument)
   /* USER CODE END StartControlCameraTask */
 }
 
-/* USER CODE BEGIN Header_startTaskPs2 */
+/* USER CODE BEGIN Header_startps2Control */
 /**
-* @brief Function implementing the taskPs2 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_startTaskPs2 */
-void startTaskPs2(void const * argument)
+ * @brief Function implementing the ps2Control thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_startps2Control */
+void startps2Control(void const *argument)
 {
-  /* USER CODE BEGIN startTaskPs2 */
+  /* USER CODE BEGIN startps2Control */
   /* Infinite loop */
-  for(;;)
+  for (;;)
   {
-	  PS2_Data(GPIOD, GPIO_PIN_2, &hspi3, steering_motor_p, bldc_motor_0);
     osDelay(1);
   }
-  /* USER CODE END startTaskPs2 */
+  /* USER CODE END startps2Control */
+}
+
+/* USER CODE BEGIN Header_StartreceiveDataSpi */
+/**
+ * @brief Function implementing the receiveDataSpi thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartreceiveDataSpi */
+void StartreceiveDataSpi(void const *argument)
+{
+  /* USER CODE BEGIN StartreceiveDataSpi */
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartreceiveDataSpi */
+}
+
+/* USER CODE BEGIN Header_StartgetDistance_SR04 */
+/**
+ * @brief Function implementing the getDistance_SR0 thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartgetDistance_SR04 */
+void StartgetDistance_SR04(void const *argument)
+{
+  /* USER CODE BEGIN StartgetDistance_SR04 */
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartgetDistance_SR04 */
 }
 
 /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM5 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM5 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM5) {
+  if (htim->Instance == TIM5)
+  {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
@@ -809,9 +860,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -823,14 +874,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
