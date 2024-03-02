@@ -2,7 +2,7 @@
 
 /**
  * The function PID_CONTROL_Reset_Parameters resets the error and output parameters of a PID controller
- * structure.
+ * structure
  *
  * @param control_p The `control_p` parameter is a pointer to a structure of type `control_steering_t`. The
  * function `PID_CONTROL_Reset_Parameters` resets the error, pre_error, pre2_error, and pre_Out members
