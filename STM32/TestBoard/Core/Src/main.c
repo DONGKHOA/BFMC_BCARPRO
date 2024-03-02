@@ -26,6 +26,7 @@
 #include "hc_sr04.h"
 #include "servo_motor.h"
 #include "ps2.h"
+#include "mpu9250_app.h"
 
 /* USER CODE END Includes */
 
@@ -83,9 +84,11 @@ servo_motor_t *steering_motor_p;
 extern uint8_t PSX_RX[8];
 extern uint8_t PSX_TX[8];
 
-// Initialize
+// imu9250
 
-uint8_t is_initialize = 0;
+imu_9250_t *imu_9250_p;
+extern uint16_t error;
+uint8_t temp = 0;
 
 /* USER CODE END PV */
 
@@ -156,16 +159,17 @@ int main(void)
   steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
 
 //  button_0 = BUTTON_Create(INIT_MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
-
-  sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
-  sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
-  sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
-  sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
-  HAL_Delay(2000);
+//
+//  sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
+//  sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
+//  sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
+//  sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
+//  HAL_Delay(2000);
   bldc_motor_0->speed = HIGH_SPEED;
   bldc_motor_0->direction = COUNTER_CLOCKWISE;
   bldc_motor_0->set_speed(bldc_motor_0);
-
+//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, 1);
+  imu_9250_p = IMU_9250_Create();
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -186,7 +190,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of receiveSpiTask */
-  osThreadDef(receiveSpiTask, StartReceiveSpiTask, osPriorityHigh, 0, 128);
+  osThreadDef(receiveSpiTask, StartReceiveSpiTask, osPriorityHigh, 0, 128 * 3);
   receiveSpiTaskHandle = osThreadCreate(osThread(receiveSpiTask), NULL);
 
   /* definition and creation of situation */
@@ -289,7 +293,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -665,10 +669,13 @@ static void MX_GPIO_Init(void)
 void StartReceiveSpiTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+
   /* Infinite loop */
   for (;;)
   {
-    osDelay(1);
+	  temp = imu_9250_p->data.temperature;
+	  imu_9250_p->get_data(imu_9250_p);
+    osDelay(10);
   }
   /* USER CODE END 5 */
 }
