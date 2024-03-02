@@ -7,10 +7,11 @@
 
 #define FORWARD 0xCF  // R[3], R[3] FREE: 0xDF
 #define BACKWARD 0x9F // R[3]
-#define LEFT 0x6F     // R[4], R[4] FREE: 0xEF
-#define RIGHT 0xCF    // R[4]
-#define RESET 0xEB      // R[4]
-#define CAM 0xE7      // R[4]
+#define LEFT 0xEE     // R[4], R[4] FREE: 0xEF
+#define RIGHT 0xED    // R[4]
+#define RESET_STEERING 0xEB      // R[4]
+#define RESET_SPEEDING 0xE7      // R[4]
+// #define CAM 0xE7      // R[4]
 
 
 
