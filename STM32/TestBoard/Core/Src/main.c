@@ -87,9 +87,10 @@ extern uint8_t PSX_TX[8];
 // imu9250
 
 imu_9250_t *imu_9250_p;
-extern uint16_t error;
+uint16_t error;
 uint8_t temp = 0;
-
+Struct_Angle Angle;
+uint32_t temp_systick = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -164,12 +165,13 @@ int main(void)
 //  sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
 //  sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
 //  sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
-//  HAL_Delay(2000);
-  bldc_motor_0->speed = HIGH_SPEED;
+  HAL_Delay(2000);
+  bldc_motor_0->speed = LOW_SPEED;
   bldc_motor_0->direction = COUNTER_CLOCKWISE;
   bldc_motor_0->set_speed(bldc_motor_0);
 //  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, 1);
-  imu_9250_p = IMU_9250_Create();
+  imu_9250_p = IMU_9250_Create();//
+  calibrateGyro(imu_9250_p, 999);//
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -673,8 +675,16 @@ void StartReceiveSpiTask(void const * argument)
   /* Infinite loop */
   for (;;)
   {
-	  temp = imu_9250_p->data.temperature;
-	  imu_9250_p->get_data(imu_9250_p);
+	imu_9250_p->get_data(imu_9250_p);
+	CalculateGyroAngle(&Angle, imu_9250_p);
+	if ((HAL_GetTick() -  temp_systick) == 3000)
+	{
+		temp_systick = 0;
+		MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x1 << 7);
+		osDelay(100);
+		MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x00);
+		osDelay(50);
+	}
     osDelay(10);
   }
   /* USER CODE END 5 */

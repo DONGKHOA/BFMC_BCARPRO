@@ -14,6 +14,7 @@
 
 #define MPU9250_ADDR 0xD0
 
+
 #define MPU9250_SMPRT_DIV 0X19
 #define MPU9250_WHO_AM_I 0X75
 #define MPU9250_CONFIG 0X1A
@@ -23,41 +24,72 @@
 #define MPU9250_INT_ENABLE 0X38
 #define MPU9250_INT_STATUS 0X3A
 #define MPU9250_ACCEL_XOUT_H 0X3B
-#define MPU9250_TEMP_OUT_H 0X41
-#define MPU9250_TEMP_OUT_L 0X42
-#define MPU9250_GYRO_ZOUT_H 0X47
-#define MPU9250_GYRO_ZOUT_L 0X48
-#define MPU9250_PWR_MGMT_1 0X6B // most important
-// #define MPU9250_INT_PIN_CFG             0x37        /*!< Interrupt pin/bypass enable configuration */
-// #define MPU9250_ADDR                    (0x68<<1)   /*!< MPU9250 Address */
+#define MPU9250_ACCEL_XOUT_L 0X3C
+#define MPU9250_PWR_MGMT_1 0X6B //most important
+//#define MPU9250_INT_PIN_CFG             0x37        /*!< Interrupt pin/bypass enable configuration */
+//#define MPU9250_ADDR                    (0x68<<1)   /*!< MPU9250 Address */
 
 /**********************
  *      TYPEDEFS
  **********************/
+// float LSB_Sensitivity_ACC;
+// float LSB_Sensitivity_GYRO;
+// uint16_t error;
+extern I2C_HandleTypeDef hi2c1;
 
-typedef struct _MPU9250_raw
+typedef struct _MPU9250
 {
-	uint16_t gyro_z_raw;
+	short acc_x_raw;
+	short acc_y_raw;
+	short acc_z_raw;
 
-	uint16_t temperature_raw;
-} mpu9250_raw_t;
+	short temperature_raw;
 
-typedef struct _MPU9250_convert
-{
-	float gyro_z;
+	short gyro_x_raw;
+	short gyro_y_raw;
+	short gyro_z_raw;
+
+	short mag_x_raw;
+	short mag_y_raw;
+	short mag_z_raw;
+
+	float acc_x;
+	float acc_y;
+	float acc_z;
 
 	float temperature;
-} mpu9250_convert_t;
 
-typedef struct _MPU9250_angle
+	float gyro_x;
+	float gyro_y;
+	float gyro_z;
+
+    float Filt_accx;
+	float Filt_accy;
+	float Filt_accz;
+
+    float Filt_gyx;
+	float Filt_gyy;
+	float Filt_gyz;
+
+    float cal_gyx;
+	float cal_gyy;
+	float cal_gyz;
+} MPU9250_t;
+
+typedef struct imu_9250 imu_9250_t;
+
+struct imu_9250
 {
-	float yaw_angle;
-} mpu9250_angle_t;
+	//	I2C_HandleTypeDef *hi2c;
+	void (*get_data)(imu_9250_t *const imu_p);
+	MPU9250_t pt1_p;
+};
+void MPU9250_Writebyte(uint8_t reg_addr, uint8_t val);
+/**********************
+ *     OPERATION
+ **********************/
 
-
-
-void MPU9250_Get6AxisRawData(mpu9250_raw_t *mpu9250_raw);
-void start_imu(void);
-void MPU9250_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO);
+imu_9250_t *IMU_9250_Create();
+void IMU_9250_Destroy(imu_9250_t *const imu_p);
 
 #endif /* DRIVERS_MPU_9250_H_ */

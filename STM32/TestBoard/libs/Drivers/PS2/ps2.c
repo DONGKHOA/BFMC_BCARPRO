@@ -15,14 +15,14 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
     {
     case FORWARD:
         /* code */
-        motor_p->speed = HIGH_SPEED;
+        motor_p->speed = LOW_SPEED;
         motor_p->direction = COUNTER_CLOCKWISE;
         servo_p->set_steering(servo_p);
         motor_p->set_speed(motor_p);
         break;
     case BACKWARD:
         /* code */
-        motor_p->speed = HIGH_SPEED;
+        motor_p->speed = LOW_SPEED;
         motor_p->direction = CLOCKWISE;
         servo_p->set_steering(servo_p);
         motor_p->set_speed(motor_p);
