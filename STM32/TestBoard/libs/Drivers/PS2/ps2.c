@@ -15,12 +15,14 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
     {
     case FORWARD:
         /* code */
+        motor_p->speed = HIGH_SPEED;
         motor_p->direction = COUNTER_CLOCKWISE;
         servo_p->set_steering(servo_p);
         motor_p->set_speed(motor_p);
         break;
     case BACKWARD:
         /* code */
+        motor_p->speed = HIGH_SPEED;
         motor_p->direction = CLOCKWISE;
         servo_p->set_steering(servo_p);
         motor_p->set_speed(motor_p);
@@ -28,33 +30,45 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
     default:
         break;
     }
-    state_set = 0;
+    static uint32_t timer = 0;
     switch (PSX_RX[4])
     {
     case LEFT:
         /* code */
         state_set = 1;
+        if (HAL_GetTick() - timer > 1)
+        {
+            state_set = 2;
+            timer = HAL_GetTick();
+        }
         break;
     case RIGHT:
         /* code */
-        state_set = 2;
+        state_set = 10;
+        if (HAL_GetTick() - timer > 1)
+        {
+            state_set = 20;
+            timer = HAL_GetTick();
+        }
         break;
-    case RESET:
+    case RESET_STEERING:
         /* code */
         servo_p->duty_steering = 50;
         servo_p->set_steering(servo_p);
         break;
-    case CAM:
+    case RESET_SPEEDING:
+        motor_p->speed = STOP_SPEED;
+        motor_p->set_speed(motor_p);
         /* code */
         break;
     default:
-        if (state_set == 1)
+        if (state_set == 2)
         {
             servo_p->duty_steering -= 5;
             servo_p->set_steering(servo_p);
             state_set = 0;
         }
-        if (state_set == 2)
+        if (state_set == 20)
         {
             servo_p->duty_steering += 5;
             servo_p->set_steering(servo_p);

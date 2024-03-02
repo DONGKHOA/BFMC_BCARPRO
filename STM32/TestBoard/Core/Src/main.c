@@ -153,10 +153,7 @@ int main(void)
   MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
   bldc_motor_0 = BLDC_MOTOR_Create(&htim3, TIM_CHANNEL_3);
-  HAL_Delay(2000);
-  bldc_motor_0->speed = HIGH_SPEED;
-  bldc_motor_0->direction = COUNTER_CLOCKWISE;
-  bldc_motor_0->set_speed(bldc_motor_0);
+  steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
 
 //  button_0 = BUTTON_Create(INIT_MOTOR_BLDC_GPIO_Port, INIT_MOTOR_BLDC_Pin);
 
@@ -164,8 +161,11 @@ int main(void)
   sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
   sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
   sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
+  HAL_Delay(2000);
+  bldc_motor_0->speed = HIGH_SPEED;
+  bldc_motor_0->direction = COUNTER_CLOCKWISE;
+  bldc_motor_0->set_speed(bldc_motor_0);
 
-  steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -402,7 +402,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 349;
+  htim1.Init.Prescaler = 448-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 1000-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
