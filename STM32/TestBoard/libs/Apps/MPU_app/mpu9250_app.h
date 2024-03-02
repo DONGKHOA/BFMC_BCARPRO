@@ -5,21 +5,23 @@
 
 #define RADIAN_TO_DEGREE 180 / 3.141592f
 
-/**********************
- *     OPERATION
- **********************/
-
-typedef struct imu_9250 imu_9250_t;
-struct imu_9250
+typedef struct _Angle
 {
-	void (*get_data)(imu_9250_t *const imu_p);
+	float acc_roll;
+	float acc_pitch;
+	float acc_yaw;
 
-	mpu9250_convert_t data;
-	mpu9250_angle_t angle;
-	mpu9250_raw_t dataraw;
-};
+	float gyro_roll;
+	float gyro_pitch;
+	float gyro_yaw;
 
-imu_9250_t *IMU_9250_Create();
-void IMU_9250_Destroy(imu_9250_t *const imu_p);
+	float ComFilt_roll;
+	float ComFilt_pitch;
+	float ComFilt_yaw;
+} Struct_Angle;
+
+void CalculateAccAngle(Struct_Angle *Angle, imu_9250_t *mpu9250);
+void CalculateGyroAngle(Struct_Angle *Angle, imu_9250_t *mpu9250);
+void CalculateCompliFilter(Struct_Angle *Angle, imu_9250_t *mpu9250);
 
 #endif
