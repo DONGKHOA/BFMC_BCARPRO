@@ -67,11 +67,7 @@ osThreadId receiveDataSpiHandle;
 osThreadId getDistance_SR0Handle;
 /* USER CODE BEGIN PV */
 
-// Queue declare
-
-// Semaphore declare
-
-
+static EventGroupHandle_t controlEvent;
 
 // BLDC motor driver
 
@@ -116,6 +112,7 @@ static QueueHandle_t spi_queue_data = NULL;
 
 // Semaphore enable receive data
 static SemaphoreHandle_t receiveSemaphore;
+
 #endif
 /* USER CODE END PV */
 
@@ -154,7 +151,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
   }
 }
 
-void SPI_Handle_Data(void)
+static inline void SPI_Handle_Data(void)
 {
 #if !DEBUG_USER
   if (spi_flag == 1)
@@ -203,6 +200,8 @@ int main(void)
   MX_TIM4_Init();
   MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
+
+  // Initialization driver
   bldc_motor_0 = BLDC_MOTOR_Create(&htim3, TIM_CHANNEL_3);
   steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
   camera_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_2);
@@ -218,6 +217,7 @@ int main(void)
 
   imu_9250_p = IMU_9250_Create();
   calibrateGyro(imu_9250_p, 999);
+
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -271,6 +271,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  controlEvent = xEventGroupCreate();
 #if DEBUG_USER
   vTaskDelete(receiveDataSpiHandle);
   vTaskDelete(situationHandle);
@@ -751,16 +752,16 @@ void StartSituation(void const *argument)
       switch (buffer[0])
       {
       case DISTANCE_LANE:
-
+        xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_BIT);
         break;
       case TRAFFIC_SIGNS:
-
+        xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_BIT);
         break;
       case TRAFFIC_LIGHTS:
-
+        xEventGroupSetBits(controlEvent, SPEEDING_BIT);
         break;
       case INDEFINITE_LANE:
-
+        xEventGroupSetBits(controlEvent, SPEEDING_BIT | CAMERA_BIT);
         break;
 
       default:
@@ -787,7 +788,15 @@ void StartControlSpeeding(void const *argument)
   /* Infinite loop */
   for (;;)
   {
-
+    EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
+                                              SPEEDING_BIT,
+                                              pdTRUE, pdFALSE, portMAX_DELAY);
+    
+    if (uxBits & SPEEDING_BIT)
+    {
+      // Control Speeding
+    }
+    
     osDelay(1);
   }
   /* USER CODE END StartControlSpeeding */
@@ -807,6 +816,14 @@ void StartControlSteering(void const *argument)
   /* Infinite loop */
   for (;;)
   {
+    EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
+                                              STEERING_BIT,
+                                              pdTRUE, pdFALSE, portMAX_DELAY);
+    
+    if (uxBits & STEERING_BIT)
+    {
+      // Control Steering
+    }
     osDelay(1);
   }
   /* USER CODE END StartControlSteering */
@@ -825,6 +842,14 @@ void StartControlCameraTask(void const *argument)
   /* Infinite loop */
   for (;;)
   {
+    EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
+                                              CAMERA_BIT,
+                                              pdTRUE, pdFALSE, portMAX_DELAY);
+    
+    if (uxBits & CAMERA_BIT)
+    {
+      // Control Camera
+    }
     osDelay(1);
   }
   /* USER CODE END StartControlCameraTask */
@@ -861,7 +886,11 @@ void StartreceiveDataSpi(void const *argument)
   /* Infinite loop */
   for (;;)
   {
-    SPI_Handle_Data();
+    if (xSemaphoreTake(receiveSemaphore, portMAX_DELAY))
+    {
+      SPI_Handle_Data();
+    }
+    
     osDelay(1);
   }
   /* USER CODE END StartreceiveDataSpi */
@@ -888,9 +917,16 @@ void StartgetDistance_SR04(void const *argument)
     // sr04_1->get_distance(sr04_1);
     // sr04_2->get_distance(sr04_2);
     // sr04_3->get_distance(sr04_3);
-    if (sr04_0->get_distance(sr04_0))
+    if (sr04_0->get_distance(sr04_0) < DISTANCE_BARRIE)
     {
-      
+      HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 1);
+      __HAL_SPI_ENABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+      xSemaphoreGive(receiveSemaphore);
+    }
+    else
+    {
+      HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 0);
+      __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
     }
     
     osDelay(1);

@@ -31,6 +31,7 @@ typedef enum
 {
     STOP_SPEED = 0,
     LOW_SPEED,
+    MEDIUM_SPEED,
     HIGH_SPEED
 } speed_motor_bldc_t;
 

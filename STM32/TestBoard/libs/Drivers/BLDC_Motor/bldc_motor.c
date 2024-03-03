@@ -14,11 +14,19 @@
  *      DEFINES
  *********************/
 
-#define DUTY_CYCLE_LOW_SPEED_CW 80
-#define DUTY_CYCLE_HIGH_SPEED_CW 83
+// SPEED COUNTER CLOCKWISE
 
-#define DUTY_CYCLE_LOW_SPEED_CCW 70
-#define DUTY_CYCLE_HIGH_SPEED_CCW 65
+#define DUTY_CYCLE_HIGH_CCK 82
+#define DUTY_CYCLE_MEDIUM_CCK 80
+#define DUTY_CYCLE_LOW_CCK 78
+
+// SPEED CLOCKWISE
+
+#define DUTY_CYCLE_CK   70
+
+// STOP SPEED
+
+#define DUTY_CYCLE_STOP 75
 
 /**********************
  *   GLOBAL FUNCTIONS
@@ -35,68 +43,59 @@ void BLDC_MOTOR_Set_Speed(bldc_motor_t *const motor_p)
     switch (motor_p->timChannel)
     {
     case TIM_CHANNEL_1:
+
         if (motor_p->speed == STOP_SPEED)
         {
-            motor_p->timer_p->Instance->CCR1 = 75;
+            motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_STOP;
+        }
+        else if (motor_p->direction == CLOCKWISE)
+        {
+            motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_CK;
         }
         else
         {
-            if (motor_p->direction == COUNTER_CLOCKWISE)
+            if (motor_p->speed == HIGH_SPEED)
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_LOW_SPEED_CCW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_HIGH_SPEED_CCW;
-                }
+                motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_HIGH_CCK;
+            }
+            else if (motor_p->speed == MEDIUM_SPEED)
+            {
+                motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_MEDIUM_CCK;
             }
             else
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_LOW_SPEED_CW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_HIGH_SPEED_CW;
-                }
+                motor_p->timer_p->Instance->CCR1 = DUTY_CYCLE_LOW_CCK;
             }
+            
         }
-
+        
         break;
 
     case TIM_CHANNEL_2:
 
         if (motor_p->speed == STOP_SPEED)
         {
-            motor_p->timer_p->Instance->CCR2 = 75;
+            motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_STOP;
+        }
+        else if (motor_p->direction == CLOCKWISE)
+        {
+            motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_CK;
         }
         else
         {
-            if (motor_p->direction == COUNTER_CLOCKWISE)
+            if (motor_p->speed == HIGH_SPEED)
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_LOW_SPEED_CCW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_HIGH_SPEED_CCW;
-                }
+                motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_HIGH_CCK;
+            }
+            else if (motor_p->speed == MEDIUM_SPEED)
+            {
+                motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_MEDIUM_CCK;
             }
             else
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_LOW_SPEED_CW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_HIGH_SPEED_CW;
-                }
+                motor_p->timer_p->Instance->CCR2 = DUTY_CYCLE_LOW_CCK;
             }
+            
         }
         break;
 
@@ -104,32 +103,27 @@ void BLDC_MOTOR_Set_Speed(bldc_motor_t *const motor_p)
 
         if (motor_p->speed == STOP_SPEED)
         {
-            motor_p->timer_p->Instance->CCR3 = 75;
+            motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_STOP;
+        }
+        else if (motor_p->direction == CLOCKWISE)
+        {
+            motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_CK;
         }
         else
         {
-            if (motor_p->direction == COUNTER_CLOCKWISE)
+            if (motor_p->speed == HIGH_SPEED)
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_LOW_SPEED_CCW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_HIGH_SPEED_CCW;
-                }
+                motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_HIGH_CCK;
+            }
+            else if (motor_p->speed == MEDIUM_SPEED)
+            {
+                motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_MEDIUM_CCK;
             }
             else
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_LOW_SPEED_CW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_HIGH_SPEED_CW;
-                }
+                motor_p->timer_p->Instance->CCR3 = DUTY_CYCLE_LOW_CCK;
             }
+            
         }
         break;
 
@@ -137,32 +131,27 @@ void BLDC_MOTOR_Set_Speed(bldc_motor_t *const motor_p)
 
         if (motor_p->speed == STOP_SPEED)
         {
-            motor_p->timer_p->Instance->CCR4 = 75;
+            motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_STOP;
+        }
+        else if (motor_p->direction == CLOCKWISE)
+        {
+            motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_CK;
         }
         else
         {
-            if (motor_p->direction == COUNTER_CLOCKWISE)
+            if (motor_p->speed == HIGH_SPEED)
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_LOW_SPEED_CCW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_HIGH_SPEED_CCW;
-                }
+                motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_HIGH_CCK;
+            }
+            else if (motor_p->speed == MEDIUM_SPEED)
+            {
+                motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_MEDIUM_CCK;
             }
             else
             {
-                if (motor_p->speed == LOW_SPEED)
-                {
-                    motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_LOW_SPEED_CW;
-                }
-                else
-                {
-                    motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_HIGH_SPEED_CW;
-                }
+                motor_p->timer_p->Instance->CCR4 = DUTY_CYCLE_LOW_CCK;
             }
+            
         }
         break;
     }

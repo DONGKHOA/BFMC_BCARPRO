@@ -42,6 +42,14 @@
 #define TRAFFIC_LIGHT_YELLOW 0X02
 #define TRAFFIC_LIGHT_GREEN 0X03
 
+#define DISTANCE_BARRIE 30      // cm
+
+// BIT Field
+
+#define SPEEDING_BIT    (1 << 0)
+#define STEERING_BIT    (1 << 1)
+#define CAMERA_BIT      (1 << 2)
+
 void controlCarBarrier(uint8_t signs);
 void controlCarParking(void);
 

@@ -18,6 +18,8 @@
  */
 void SERVO_MOTOR_Set_Steering(servo_motor_t *const servo_p)
 {
+    HAL_TIM_PWM_Start(servo_p->timer_p, servo_p->timChannel);
+    
     switch (servo_p->timChannel)
     {
         case TIM_CHANNEL_1:
@@ -56,7 +58,6 @@ void SERVO_MOTOR_Init(servo_motor_t *const servo_p, TIM_HandleTypeDef *timer_p, 
     servo_p->timer_p = timer_p;
     servo_p->timChannel = timChannel;
     servo_p->duty_steering = DUTY_CYCLE_MIDDLE_STEERING;
-    HAL_TIM_PWM_Start(servo_p->timer_p, servo_p->timChannel);
     SERVO_MOTOR_Set_Steering(servo_p);
 }
 
