@@ -28,6 +28,7 @@
 #include "ps2.h"
 #include "mpu9250_app.h"
 #include "debug.h"
+#include "situation.h"
 
 /* USER CODE END Includes */
 
@@ -66,11 +67,9 @@ osThreadId receiveDataSpiHandle;
 osThreadId getDistance_SR0Handle;
 /* USER CODE BEGIN PV */
 
-// Queue Init
+// Queue declare
 
-static QueueHandle_t spi_queue_data = NULL;
-
-// Semaphore
+// Semaphore declare
 
 // BLDC motor driver
 
@@ -109,6 +108,9 @@ static uint8_t position_spi = 0;
 
 // flag notify complete receive data
 static uint8_t spi_flag = 0;
+
+// Queue send data
+static QueueHandle_t spi_queue_data = NULL;
 #endif
 /* USER CODE END PV */
 
@@ -153,6 +155,7 @@ void SPI_Handle_Data(void)
   if (spi_flag == 1)
   {
     // send queue
+    xQueueSend(spi_queue_data, (void *)&rx_buff, 0);
     spi_flag = 0;
   }
 
@@ -733,9 +736,32 @@ void StartgetDataIMU(void const *argument)
 void StartSituation(void const *argument)
 {
   /* USER CODE BEGIN StartSituation */
+  uint8_t buffer[5];
   /* Infinite loop */
   for (;;)
   {
+    if (xQueueReceive(spi_queue_data, buffer, portMAX_DELAY))
+    {
+      switch (buffer[0])
+      {
+      case DISTANCE_LANE:
+
+        break;
+      case TRAFFIC_SIGNS:
+
+        break;
+      case TRAFFIC_LIGHTS:
+
+        break;
+      case INDEFINITE_LANE:
+
+        break;
+
+      default:
+        break;
+      }
+    }
+
     osDelay(1);
   }
   /* USER CODE END StartSituation */
@@ -829,6 +855,7 @@ void StartreceiveDataSpi(void const *argument)
   /* Infinite loop */
   for (;;)
   {
+    SPI_Handle_Data();
     osDelay(1);
   }
   /* USER CODE END StartreceiveDataSpi */

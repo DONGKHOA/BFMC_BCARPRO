@@ -10,6 +10,16 @@
 #include "bldc_motor.h"
 #include <stdlib.h>
 
+/*********************
+ *      DEFINES
+ *********************/
+
+#define DUTY_CYCLE_LOW_SPEED_CW 80
+#define DUTY_CYCLE_HIGH_SPEED_CW 83
+
+#define DUTY_CYCLE_LOW_SPEED_CCW 70
+#define DUTY_CYCLE_HIGH_SPEED_CCW 65
+
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/

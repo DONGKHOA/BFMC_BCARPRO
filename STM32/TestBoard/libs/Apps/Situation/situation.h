@@ -42,4 +42,7 @@
 #define TRAFFIC_LIGHT_YELLOW 0X02
 #define TRAFFIC_LIGHT_GREEN 0X03
 
+void controlCarBarrier(uint8_t signs);
+void controlCarParking(void);
+
 #endif /* APPS_SITUATION_SITUATION_H_ */
