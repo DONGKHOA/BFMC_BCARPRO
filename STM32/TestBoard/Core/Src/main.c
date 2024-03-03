@@ -71,6 +71,8 @@ osThreadId getDistance_SR0Handle;
 
 // Semaphore declare
 
+
+
 // BLDC motor driver
 
 static bldc_motor_t *bldc_motor_0;
@@ -111,6 +113,9 @@ static uint8_t spi_flag = 0;
 
 // Queue send data
 static QueueHandle_t spi_queue_data = NULL;
+
+// Semaphore enable receive data
+static SemaphoreHandle_t receiveSemaphore;
 #endif
 /* USER CODE END PV */
 
@@ -272,6 +277,7 @@ int main(void)
   HAL_SPI_DeInit(&hspi1);
 #else
   spi_queue_data = xQueueCreate(5, sizeof(uint8_t));
+  receiveSemaphore = xSemaphoreCreateBinary();
   vTaskDelete(ps2ControlHandle);
   HAL_SPI_DeInit(&hspi3);
   HAL_SPI_Receive_IT(&hspi1, &rx_buff, 1);
@@ -874,6 +880,19 @@ void StartgetDistance_SR04(void const *argument)
   /* Infinite loop */
   for (;;)
   {
+    // 0: forward
+    // 1: right
+    // 2: back
+    // 3: left
+
+    // sr04_1->get_distance(sr04_1);
+    // sr04_2->get_distance(sr04_2);
+    // sr04_3->get_distance(sr04_3);
+    if (sr04_0->get_distance(sr04_0))
+    {
+      
+    }
+    
     osDelay(1);
   }
   /* USER CODE END StartgetDistance_SR04 */

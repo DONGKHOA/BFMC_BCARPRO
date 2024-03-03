@@ -13,7 +13,7 @@
 
 void controlCarBarrier(uint8_t signs)
 {
-    if (signs = TRAFFIC_SIGN_STOP)
+    if (signs == TRAFFIC_SIGN_STOP)
     {
         
     }
@@ -26,5 +26,5 @@ void controlCarBarrier(uint8_t signs)
 
 void controlCarParking(void)
 {
-    
+
 }
