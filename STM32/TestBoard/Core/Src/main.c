@@ -114,6 +114,9 @@ static uint8_t position_spi = 0;
 
 // flag notify complete receive data
 static uint8_t spi_flag = 0;
+uint8_t data_receiv;
+uint8_t ii = 4;
+uint8_t start_frame;
 
 /* USER CODE END PV */
 
@@ -147,11 +150,30 @@ extern void calibrateGyro(imu_9250_t *mpu9250, uint16_t numCalPoints);
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-  if (hspi->Instance == hspi1.Instance)
-  {
-  }
+    if (hspi->Instance == hspi1.Instance)
+    {
+        if (start_frame == 1)
+        {
+        	spi_buff[(ii++)] = data_receiv;
+        }
+        HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
+    }
 }
 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == GPIO_PIN_6)
+    {
+        if (((GPIOB->IDR) & (0b01000000)) == 0)
+            start_frame = 1;
+        else
+        {
+            spi_flag++;
+            start_frame = 0;
+        }
+        ii = 0;
+    }
+}
 static inline void SPI_Handle_Data(void)
 {
   if (spi_flag == 1)
