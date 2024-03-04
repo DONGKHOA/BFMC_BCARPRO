@@ -91,6 +91,7 @@ void Error_Handler(void);
 #define TRIG_1_GPIO_Port GPIOA
 #define SPI_CS_RAS_Pin GPIO_PIN_6
 #define SPI_CS_RAS_GPIO_Port GPIOB
+#define SPI_CS_RAS_EXTI_IRQn EXTI9_5_IRQn
 #define CONTROL_RAS_Pin GPIO_PIN_7
 #define CONTROL_RAS_GPIO_Port GPIOB
 

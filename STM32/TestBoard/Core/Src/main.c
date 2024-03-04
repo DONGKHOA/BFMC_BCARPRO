@@ -126,14 +126,14 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_SPI3_Init(void);
-void StartgetDataIMU(void const *argument);
-void StartSituation(void const *argument);
-void StartControlSpeeding(void const *argument);
-void StartControlSteering(void const *argument);
-void StartControlCameraTask(void const *argument);
-void startps2Control(void const *argument);
-void StartreceiveDataSpi(void const *argument);
-void StartgetDistance_SR04(void const *argument);
+void StartgetDataIMU(void const * argument);
+void StartSituation(void const * argument);
+void StartControlSpeeding(void const * argument);
+void StartControlSteering(void const * argument);
+void StartControlCameraTask(void const * argument);
+void startps2Control(void const * argument);
+void StartreceiveDataSpi(void const * argument);
+void StartgetDistance_SR04(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -165,9 +165,9 @@ static inline void SPI_Handle_Data(void)
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -292,22 +292,22 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-   */
+  */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -322,8 +322,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV8;
@@ -336,10 +337,10 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief I2C1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_I2C1_Init(void)
 {
 
@@ -366,13 +367,14 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
- * @brief SPI1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_SPI1_Init(void)
 {
 
@@ -402,13 +404,14 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
 }
 
 /**
- * @brief SPI3 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief SPI3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_SPI3_Init(void)
 {
 
@@ -439,13 +442,14 @@ static void MX_SPI3_Init(void)
   /* USER CODE BEGIN SPI3_Init 2 */
 
   /* USER CODE END SPI3_Init 2 */
+
 }
 
 /**
- * @brief TIM1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM1_Init(void)
 {
 
@@ -461,9 +465,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 448 - 1;
+  htim1.Init.Prescaler = 448-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 1000 - 1;
+  htim1.Init.Period = 1000-1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -507,13 +511,14 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 2 */
   HAL_TIM_MspPostInit(&htim1);
+
 }
 
 /**
- * @brief TIM3 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM3_Init(void)
 {
 
@@ -529,9 +534,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 112 - 1;
+  htim3.Init.Prescaler = 112-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 1000 - 1;
+  htim3.Init.Period = 1000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -565,13 +570,14 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
+
 }
 
 /**
- * @brief TIM4 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM4_Init(void)
 {
 
@@ -586,7 +592,7 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 70 - 1;
+  htim4.Init.Prescaler = 70-1;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 65535;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -609,18 +615,19 @@ static void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 2 */
 
   /* USER CODE END TIM4_Init 2 */
+
 }
 
 /**
- * @brief GPIO Initialization Function
- * @param None
- * @retval None
- */
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  /* USER CODE BEGIN MX_GPIO_Init_1 */
-  /* USER CODE END MX_GPIO_Init_1 */
+/* USER CODE BEGIN MX_GPIO_Init_1 */
+/* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
@@ -630,10 +637,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LED_INIT_BLDC_Pin | TRIG_3_Pin | TRIG_4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, TRIG_2_Pin | CONTROL_RAS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, TRIG_2_Pin|CONTROL_RAS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(TRIG_1_GPIO_Port, TRIG_1_Pin, GPIO_PIN_RESET);
@@ -642,26 +649,26 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LED_INIT_BLDC_Pin TRIG_3_Pin TRIG_4_Pin */
-  GPIO_InitStruct.Pin = LED_INIT_BLDC_Pin | TRIG_3_Pin | TRIG_4_Pin;
+  GPIO_InitStruct.Pin = LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ECHO_3_Pin ECHO_4_Pin */
-  GPIO_InitStruct.Pin = ECHO_3_Pin | ECHO_4_Pin;
+  GPIO_InitStruct.Pin = ECHO_3_Pin|ECHO_4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ECHO_2_Pin SPI_CS_RAS_Pin */
-  GPIO_InitStruct.Pin = ECHO_2_Pin | SPI_CS_RAS_Pin;
+  /*Configure GPIO pin : ECHO_2_Pin */
+  GPIO_InitStruct.Pin = ECHO_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(ECHO_2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : TRIG_2_Pin CONTROL_RAS_Pin */
-  GPIO_InitStruct.Pin = TRIG_2_Pin | CONTROL_RAS_Pin;
+  GPIO_InitStruct.Pin = TRIG_2_Pin|CONTROL_RAS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -687,8 +694,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN MX_GPIO_Init_2 */
-  /* USER CODE END MX_GPIO_Init_2 */
+  /*Configure GPIO pin : SPI_CS_RAS_Pin */
+  GPIO_InitStruct.Pin = SPI_CS_RAS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SPI_CS_RAS_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+/* USER CODE BEGIN MX_GPIO_Init_2 */
+/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -702,7 +719,7 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartgetDataIMU */
-void StartgetDataIMU(void const *argument)
+void StartgetDataIMU(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
@@ -755,7 +772,7 @@ void StartgetDataIMU(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartSituation */
-void StartSituation(void const *argument)
+void StartSituation(void const * argument)
 {
   /* USER CODE BEGIN StartSituation */
   uint8_t buffer[5];
@@ -817,7 +834,7 @@ void StartSituation(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartControlSpeeding */
-void StartControlSpeeding(void const *argument)
+void StartControlSpeeding(void const * argument)
 {
   /* USER CODE BEGIN StartControlSpeeding */
   /* Infinite loop */
@@ -845,7 +862,7 @@ void StartControlSpeeding(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartControlSteering */
-void StartControlSteering(void const *argument)
+void StartControlSteering(void const * argument)
 {
   /* USER CODE BEGIN StartControlSteering */
   /* Infinite loop */
@@ -877,7 +894,7 @@ void StartControlSteering(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartControlCameraTask */
-void StartControlCameraTask(void const *argument)
+void StartControlCameraTask(void const * argument)
 {
   /* USER CODE BEGIN StartControlCameraTask */
   /* Infinite loop */
@@ -903,7 +920,7 @@ void StartControlCameraTask(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_startps2Control */
-void startps2Control(void const *argument)
+void startps2Control(void const * argument)
 {
   /* USER CODE BEGIN startps2Control */
 #if DEBUG_USER
@@ -937,7 +954,7 @@ void startps2Control(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartreceiveDataSpi */
-void StartreceiveDataSpi(void const *argument)
+void StartreceiveDataSpi(void const * argument)
 {
   /* USER CODE BEGIN StartreceiveDataSpi */
   /* Infinite loop */
@@ -960,7 +977,7 @@ void StartreceiveDataSpi(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartgetDistance_SR04 */
-void StartgetDistance_SR04(void const *argument)
+void StartgetDistance_SR04(void const * argument)
 {
   /* USER CODE BEGIN StartgetDistance_SR04 */
   /* Infinite loop */
@@ -1015,20 +1032,19 @@ void StartgetDistance_SR04(void const *argument)
 }
 
 /**
- * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM5 interrupt took place, inside
- * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
- * a global variable "uwTick" used as application time base.
- * @param  htim : TIM handle
- * @retval None
- */
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM5 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM5)
-  {
+  if (htim->Instance == TIM5) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
@@ -1037,9 +1053,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -1051,14 +1067,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

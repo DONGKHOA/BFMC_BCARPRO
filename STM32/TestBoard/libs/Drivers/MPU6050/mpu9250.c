@@ -3,6 +3,7 @@
  *********************/
 
 #include "mpu9250.h"
+#include "cmsis_os.h"
 #include <stdlib.h>
 
 float LSB_Sensitivity_ACC;
