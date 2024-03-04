@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import pickle
 from scipy import signal
 
 
@@ -72,70 +71,6 @@ def lane_peaks(histogram):
 
 
     return peak_left, peak_right
-
-def camera_calibrate(objpoints, imgpoints, img):
-    """Calibrate camera and undistort an image."""
-    # Test undistortion on an image
-    img_size = img.shape[0:2]
-    # Do camera calibration given object points and image points
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, img_size, None, None)
-    dst = cv2.undistort(img, mtx, dist, None, mtx)
-    return ret, mtx, dist, dst
-
-
-#with open('/home/lucis/PycharmProject/Bosch_car/Lane_detection/calibration_data.pkl', 'rb') as f:
-    objpoints, imgpoints, chessboards = pickle.load(f)
-
-# Đọc ảnh để hiệu chỉnh camera
-
-
-def undistort_image(img, mtx, dist):
-    # Assuming mtx and dist are the camera calibration matrices
-    dst = cv2.undistort(img, mtx, dist, None, mtx)
-    return dst
-
-def perspective_warp(img, M):
-    # img_size = (img.shape[1], img.shape[0])
-    img_size = (img.shape[0], img.shape[1])
-
-    warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
-
-    return warped
-def perspective_transforms(src, dst):
-    M = cv2.getPerspectiveTransform(src, dst)
-    Minv = cv2.getPerspectiveTransform(dst, src)
-
-    return M, Minv
-
-def perspective_unwarp(img, Minv):
-    img_size = (img.shape[0], img.shape[1])
-
-    unwarped = cv2.warpPerspective(img, Minv, img_size, flags=cv2.INTER_LINEAR)
-
-    return unwarped
-
-
-def calc_warp_points(img_height, img_width, x_center_adj=20):
-    imshape = (img_height, img_width)
-    xcenter = imshape[1] / 2 + x_center_adj
-    xoffset = 0
-    xfd = 140
-    yf = 140
-    src = np.float32([
-        (xoffset, imshape[0]),
-        (xcenter - xfd, yf),
-        (xcenter + xfd, yf),
-        (imshape[1] - xoffset, imshape[0])
-    ])
-
-    dst = np.float32([
-        (xoffset, imshape[1]),
-        (xoffset, 0),
-        (imshape[0] - xoffset, 0),
-        (imshape[0] - xoffset, imshape[1])
-    ])
-
-    return src, dst
 
 def poly_fitx(fity, line_fit):
     fit_linex = line_fit[0]*fity**2 + line_fit[1]*fity + line_fit[2]
@@ -230,17 +165,13 @@ def calc_lr_fit_from_polys(binimg, left_fit, right_fit, margin):
 
     # Assuming 'frame' is your image frame
     frame_test = np.zeros((360, 640, 3), dtype=np.uint8)  # Creating a blank frame for demonstration
-    #left_y_values=np.linspace(150,160,1)
     # Generate y values for the left lane
     left_y_values = np.linspace(0, frame_test.shape[0] - 1, frame_test.shape[0])
     left_x_values = np.polyval(new_left_fit, left_y_values)
-    #left_x_values=np.mean(left_x_values)
-    #right_y_values=np.linspace(150,160,1)
 
     # Generate y values for the right lane
     right_y_values = np.linspace(0, frame_test.shape[0] - 1, frame_test.shape[0])
     right_x_values = np.polyval(new_right_fit, right_y_values)
-    #right_x_values=np.mean(right_x_values)
     # Convert x and y values to integer for drawing
     left_points = np.column_stack((left_x_values.astype(int), left_y_values.astype(int)))
 
@@ -256,4 +187,3 @@ def calc_lr_fit_from_polys(binimg, left_fit, right_fit, margin):
     cv2.imshow('Lane Detection_test', frame_test)
 
     return (new_left_fit, new_right_fit)
-

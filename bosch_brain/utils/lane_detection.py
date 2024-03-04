@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 from collections import deque
-from define_function import lane_histogram,poly_fitx,calc_fit_from_boxes,find_lane_windows,lane_peaks,calc_curvature,calc_lr_fit_from_polys,perspective_unwarp,calc_warp_points,perspective_transforms,perspective_warp,undistort_image
-from preprocessing_img import combined_threshold
+from convert_bird_eye_view import perspective_unwarp,calc_warp_points,perspective_transforms,perspective_warp,undistort_image
+from img_processing import combined_threshold
+from find_lane import poly_fitx,calc_fit_from_boxes,find_lane_windows,lane_peaks,calc_curvature,calc_lr_fit_from_polys,lane_histogram
 
 
 class WindowBox(object):
@@ -514,10 +515,8 @@ class Lane():
         for wbot in range(0, height - 1, wheight):
             warp_window = warp_window_threshold(wbot, wheight)
             warp_window_stack.append(warp_window)
-
         # Đối với phiên bản dự án này, chỉ sử dụng ảnh bình thường vào ban ngày
         warped = np.vstack(warp_window_stack)
-
         return binimg, warped
 
     def _warp_undistorted_threshold(self, undistorted_image):
@@ -570,7 +569,7 @@ class Lane():
     def warped_histogram(self):
         # Tính histogram của ảnh đã warp
         height = self.warped.shape[0]
-        return lane_histogram(self.warped, int(150), 240)
+        return lane_histogram(self.warped, int(height), 240)
 
     def _road_line_box_search(self, x_start, old, nwindows=12, width=40):
         # Tìm kiếm làn đường trong một cửa sổ trượt
@@ -581,7 +580,6 @@ class Lane():
         boxes = find_lane_windows(wb, self.warped)
         poly_fit = calc_fit_from_boxes(boxes, old)
         line = self._line_from_fit(poly_fit)
-        #line = Line(self.ploty, poly_fit, self.warped)
         return line,poly_fit
 
     def _recalc_road_lines_from_polyfit(self, margin=5):
@@ -593,7 +591,7 @@ class Lane():
         try:
             self.road_line_left.line = self._line_from_fit(new_left_fit)
         except:
-            print("really bad left line ... next version will fix this")
+            self.road_line_right.line = self._line_from_fit(new_right_fit)
 
     def _line_from_fit(self, new_fit):
         # Tạo đối tượng Line từ đường bậc thức đa thức
@@ -611,10 +609,6 @@ class Lane():
 
 
 
-
-
-
-
     def _draw_lanes_unwarped(self):
         # Vẽ làn đường trên ảnh gốc
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -626,7 +620,7 @@ class Lane():
         pts_left = np.array([np.transpose(np.vstack([mean_xs_left, self.ploty]))])
         pts_right = np.array([np.flipud(np.transpose(np.vstack([mean_xs_right, self.ploty])))])
 
-        pts = np.hstack((pts_left, pts_right))
+        pts = np.hstack((pts_left, pts_left))
 
         cv2.fillPoly(color_warp, np.int_([pts]), (0, 120,255))
 
@@ -640,10 +634,7 @@ class Lane():
         midpoint_x = (vertex3[0] + vertex1[0]) // 2
         midpoint_y = (vertex3[1] + vertex1[1]) // 2
         distance = vertex3[0]-vertex1[0]
-
         midpoint = (midpoint_x, midpoint_y)
-
-
         # Draw a circle at the midpoint for visualization
         cv2.circle(color_warp, midpoint, 10, (0, 0, 255), -1)
         cv2.circle(color_warp, (134,100), 5, (255,0 ,0 ), -1)
@@ -657,7 +648,6 @@ class Lane():
         font_color = (255, 255, 255)
         cv2.putText(result, 'Distance: %.2f meters' % distance, (50, 50),
                     font, font_scale, font_color, font_thickness, cv2.LINE_AA)
-
         return result,distance
 
 
