@@ -71,7 +71,7 @@ void MPU9250_Get_LSB_Sensitivity(uint8_t FS_SCALE_GYRO, uint8_t FS_SCALE_ACC)
 
 void start_imu(void)
 {
-	HAL_Delay(50);
+	osDelay(50);
 	uint8_t who_am_i = 0;
 	MPU9250_Readbyte(MPU9250_WHO_AM_I, &who_am_i);
 	if (who_am_i == 0x71)
@@ -86,24 +86,24 @@ void start_imu(void)
 
 	// Reset the whole module before initialization
 	MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x1 << 7);
-	HAL_Delay(100);
+	osDelay(100);
 
 	// Power Management setting
 	/* Default is sleep mode
 	 * necessary to wake up MPU9250*/
 	MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x00);
-	HAL_Delay(50);
+	osDelay(50);
 
 	// Sample rate divider
 	/*Sample Rate = Gyroscope Output Rate / (1 + SMPRT_DIV) */
 	//	MPU9250_Writebyte(MPU9250_SMPRT_DIV, 0x00); // ACC output rate is 1kHz, GYRO output rate is 8kHz
 	MPU9250_Writebyte(MPU9250_SMPRT_DIV, 39); // Sample Rate = 200Hz		//**********************
-	HAL_Delay(50);
+	osDelay(50);
 
 	// FSYNC and DLPF setting
 	/*DLPF is set to 0*/
 	MPU9250_Writebyte(MPU9250_CONFIG, 0x00); //**********************
-	HAL_Delay(50);
+	osDelay(50);
 
 	// GYRO FULL SCALE setting
 	/*FS_SEL  Full Scale Range
@@ -113,7 +113,7 @@ void start_imu(void)
 	  3		+-2000 degree/s	*/
 	uint8_t FS_SCALE_GYRO = 0x01;
 	MPU9250_Writebyte(MPU9250_GYRO_CONFIG, FS_SCALE_GYRO << 3);
-	HAL_Delay(50);
+	osDelay(50);
 
 	// ACCEL FULL SCALE setting
 	/*FS_SEL  Full Scale Range
@@ -123,7 +123,7 @@ void start_imu(void)
 	  3		+-16g	*/
 	uint8_t FS_SCALE_ACC = 0x00;
 	MPU9250_Writebyte(MPU9250_ACCEL_CONFIG, FS_SCALE_ACC << 3);
-	HAL_Delay(50);
+	osDelay(50);
 
 	MPU9250_Get_LSB_Sensitivity(FS_SCALE_GYRO, FS_SCALE_ACC);
 	temp_systick = HAL_GetTick();
@@ -185,7 +185,7 @@ void calibrateGyro(imu_9250_t *mpu9250, uint16_t numCalPoints)
 		xx += mpu9250->pt1_p.gyro_x_raw;
 		yy += mpu9250->pt1_p.gyro_y_raw;
 		zz += mpu9250->pt1_p.gyro_z_raw;
-		HAL_Delay(3);
+		osDelay(3);
 	}
 
 	// Average the saved data points to find the gyroscope offset

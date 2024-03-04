@@ -42,13 +42,31 @@
 #define TRAFFIC_LIGHT_YELLOW 0X02
 #define TRAFFIC_LIGHT_GREEN 0X03
 
-#define DISTANCE_BARRIE 30      // cm
+#define DISTANCE_BARRIER 30      // cm
 
 // BIT Field
 
 #define SPEEDING_BIT    (1 << 0)
-#define STEERING_BIT    (1 << 1)
-#define CAMERA_BIT      (1 << 2)
+#define STEERING_CONTROL_BIT    (1 << 1)
+#define STEERING_NONE_CONTROL_BIT    (1 << 2)
+#define CAMERA_BIT      (1 << 3)
+#define BARRIER_AVOID   (1 << 4)
+#define PARKING         (1 << 5)
+
+// BARRIER_AVOID
+
+#define LANE_CHANGE_ANGLE   45
+#define STEERING_CHANGE_ANGLE 10
+#define DISTANCE_BESIDE_BARRIER    15  // cm
+
+typedef struct 
+{
+    uint8_t state_forward : 1;
+    uint8_t state_right : 1;
+    uint8_t state_back : 1;
+    uint8_t state_left : 1;
+} __attribute__((packed)) sr04_state_t;
+
 
 void controlCarBarrier(uint8_t signs);
 void controlCarParking(void);

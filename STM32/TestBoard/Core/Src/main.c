@@ -67,11 +67,21 @@ osThreadId receiveDataSpiHandle;
 osThreadId getDistance_SR0Handle;
 /* USER CODE BEGIN PV */
 
+// Queue send data
+static QueueHandle_t queue_data = NULL;
+
+// EventGroup
 static EventGroupHandle_t controlEvent;
+
+// Semaphore enable receive data
+static SemaphoreHandle_t receiveSemaphore;
 
 // BLDC motor driver
 
 static bldc_motor_t *bldc_motor_0;
+// Servo Motor driver
+
+static servo_motor_t *steering_motor_p;
 
 // SR04 measure distance from car to barrier
 
@@ -80,9 +90,8 @@ static SR04Driver_t *sr04_1;
 static SR04Driver_t *sr04_2;
 static SR04Driver_t *sr04_3;
 
-// Servo Motor driver
+static sr04_state_t state_sr04;
 
-static servo_motor_t *steering_motor_p;
 static servo_motor_t *camera_motor_p;
 
 // imu9250
@@ -91,8 +100,7 @@ static imu_9250_t *imu_9250_p;
 uint16_t error;
 static Struct_Angle Angle;
 uint32_t temp_systick = 0;
-
-#if !DEBUG_USER
+static float yaw_angle_init = 0;
 // Variable of SPI
 
 // data is receive from spi communication
@@ -107,13 +115,6 @@ static uint8_t position_spi = 0;
 // flag notify complete receive data
 static uint8_t spi_flag = 0;
 
-// Queue send data
-static QueueHandle_t spi_queue_data = NULL;
-
-// Semaphore enable receive data
-static SemaphoreHandle_t receiveSemaphore;
-
-#endif
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -153,15 +154,13 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 static inline void SPI_Handle_Data(void)
 {
-#if !DEBUG_USER
   if (spi_flag == 1)
   {
     // send queue
-    xQueueSend(spi_queue_data, (void *)&rx_buff, 0);
+    xQueueSend(queue_data, (void *)&rx_buff, 0);
     spi_flag = 0;
   }
 
-#endif
 }
 /* USER CODE END 0 */
 
@@ -204,17 +203,21 @@ int main(void)
   // Initialization driver
   bldc_motor_0 = BLDC_MOTOR_Create(&htim3, TIM_CHANNEL_3);
   steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
+  HAL_Delay(2000);
+  bldc_motor_0->speed = HIGH_SPEED;
+  bldc_motor_0->direction = COUNTER_CLOCKWISE;
+  bldc_motor_0->set_speed(bldc_motor_0);
+
+  controlEvent = xEventGroupCreate();
+  queue_data = xQueueCreate(5, sizeof(uint8_t));
+  receiveSemaphore = xSemaphoreCreateBinary();
+
   camera_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_2);
 
   sr04_0 = SR04_Create(&htim4, TRIG_1_GPIO_Port, TRIG_1_Pin, ECHO_1_GPIO_Port, ECHO_1_Pin);
   sr04_1 = SR04_Create(&htim4, TRIG_2_GPIO_Port, TRIG_2_Pin, ECHO_2_GPIO_Port, ECHO_2_Pin);
   sr04_2 = SR04_Create(&htim4, TRIG_3_GPIO_Port, TRIG_3_Pin, ECHO_3_GPIO_Port, ECHO_3_Pin);
   sr04_3 = SR04_Create(&htim4, TRIG_4_GPIO_Port, TRIG_4_Pin, ECHO_4_GPIO_Port, ECHO_4_Pin);
-  HAL_Delay(2000);
-  bldc_motor_0->speed = LOW_SPEED;
-  bldc_motor_0->direction = COUNTER_CLOCKWISE;
-  bldc_motor_0->set_speed(bldc_motor_0);
-
   imu_9250_p = IMU_9250_Create();
   calibrateGyro(imu_9250_p, 999);
 
@@ -271,18 +274,6 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  controlEvent = xEventGroupCreate();
-#if DEBUG_USER
-  vTaskDelete(receiveDataSpiHandle);
-  vTaskDelete(situationHandle);
-  HAL_SPI_DeInit(&hspi1);
-#else
-  spi_queue_data = xQueueCreate(5, sizeof(uint8_t));
-  receiveSemaphore = xSemaphoreCreateBinary();
-  vTaskDelete(ps2ControlHandle);
-  HAL_SPI_DeInit(&hspi3);
-  HAL_SPI_Receive_IT(&hspi1, &rx_buff, 1);
-#endif
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -714,20 +705,44 @@ static void MX_GPIO_Init(void)
 void StartgetDataIMU(void const *argument)
 {
   /* USER CODE BEGIN 5 */
-
   /* Infinite loop */
   for (;;)
   {
-    imu_9250_p->get_data(imu_9250_p);
-    CalculateGyroAngle(&Angle, imu_9250_p);
-    if ((HAL_GetTick() - temp_systick) == 3000)
+    EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
+                                             BARRIER_AVOID,
+                                             pdFALSE, pdFALSE, portMAX_DELAY);
+    if (uxBits & BARRIER_AVOID)
     {
-      temp_systick = 0;
-      MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x1 << 7);
-      osDelay(100);
-      MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x00);
-      osDelay(50);
+      imu_9250_p->get_data(imu_9250_p);
+      CalculateGyroAngle(&Angle, imu_9250_p);
+      if (yaw_angle_init - Angle.gyro_yaw >= LANE_CHANGE_ANGLE)
+      {
+        xEventGroupSetBits(controlEvent, STEERING_NONE_CONTROL_BIT);
+        steering_motor_p->duty_steering = DUTY_CYCLE_MAX_RIGHT;
+      }
+      else if ((yaw_angle_init - Angle.gyro_yaw < STEERING_CHANGE_ANGLE) &&
+               (yaw_angle_init - Angle.gyro_yaw > -STEERING_CHANGE_ANGLE))
+      {
+        state_sr04.state_right = 1;
+        vTaskSuspend(getDataIMUHandle);
+      }
+      else if (yaw_angle_init - Angle.gyro_yaw >= -LANE_CHANGE_ANGLE)
+      {
+        xEventGroupSetBits(controlEvent, STEERING_NONE_CONTROL_BIT);
+        steering_motor_p->duty_steering = DUTY_CYCLE_MAX_LEFT;
+        vTaskSuspend(getDataIMUHandle);
+      }
+
+      if ((HAL_GetTick() - temp_systick) == 3000)
+      {
+        temp_systick = 0;
+        MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x1 << 7);
+        osDelay(100);
+        MPU9250_Writebyte(MPU9250_PWR_MGMT_1, 0x00);
+        osDelay(50);
+      }
     }
+
     osDelay(10);
   }
   /* USER CODE END 5 */
@@ -744,18 +759,28 @@ void StartSituation(void const *argument)
 {
   /* USER CODE BEGIN StartSituation */
   uint8_t buffer[5];
+  uint8_t condition;
   /* Infinite loop */
   for (;;)
   {
-    if (xQueueReceive(spi_queue_data, buffer, portMAX_DELAY))
+    if (xQueueReceive(queue_data, buffer, portMAX_DELAY))
     {
       switch (buffer[0])
       {
       case DISTANCE_LANE:
-        xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_BIT);
+
+        xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_CONTROL_BIT);
         break;
       case TRAFFIC_SIGNS:
-        xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_BIT);
+        if (buffer[1] == TRAFFIC_SIGN_CROSSWALK)
+        {
+          condition = 0;
+        }
+        else
+        {
+          condition = 1;
+        }
+        xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_CONTROL_BIT);
         break;
       case TRAFFIC_LIGHTS:
         xEventGroupSetBits(controlEvent, SPEEDING_BIT);
@@ -763,7 +788,18 @@ void StartSituation(void const *argument)
       case INDEFINITE_LANE:
         xEventGroupSetBits(controlEvent, SPEEDING_BIT | CAMERA_BIT);
         break;
+      case BARRIER:
+        if (condition == 1)
+        {
+          steering_motor_p->duty_steering = DUTY_CYCLE_MAX_LEFT;
+          CalculateGyroAngle(&Angle, imu_9250_p);
+          yaw_angle_init = Angle.gyro_yaw;
+          vTaskResume(getDataIMUHandle);
+          xEventGroupSetBits(controlEvent, SPEEDING_BIT | STEERING_NONE_CONTROL_BIT | BARRIER_AVOID);
+          vTaskSuspend(situationHandle);
+        }
 
+        break;
       default:
         break;
       }
@@ -784,19 +820,19 @@ void StartSituation(void const *argument)
 void StartControlSpeeding(void const *argument)
 {
   /* USER CODE BEGIN StartControlSpeeding */
-
   /* Infinite loop */
   for (;;)
   {
     EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
-                                              SPEEDING_BIT,
-                                              pdTRUE, pdFALSE, portMAX_DELAY);
-    
+                                             SPEEDING_BIT,
+                                             pdTRUE, pdFALSE, portMAX_DELAY);
+
     if (uxBits & SPEEDING_BIT)
     {
       // Control Speeding
+      bldc_motor_0->set_speed(bldc_motor_0);
     }
-    
+
     osDelay(1);
   }
   /* USER CODE END StartControlSpeeding */
@@ -812,18 +848,23 @@ void StartControlSpeeding(void const *argument)
 void StartControlSteering(void const *argument)
 {
   /* USER CODE BEGIN StartControlSteering */
-
   /* Infinite loop */
   for (;;)
   {
     EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
-                                              STEERING_BIT,
-                                              pdTRUE, pdFALSE, portMAX_DELAY);
-    
-    if (uxBits & STEERING_BIT)
+                                             STEERING_CONTROL_BIT | STEERING_NONE_CONTROL_BIT,
+                                             pdTRUE, pdFALSE, portMAX_DELAY);
+
+    if (uxBits & STEERING_CONTROL_BIT)
     {
       // Control Steering
     }
+
+    if (uxBits & STEERING_NONE_CONTROL_BIT)
+    {
+      steering_motor_p->set_steering(steering_motor_p);
+    }
+
     osDelay(1);
   }
   /* USER CODE END StartControlSteering */
@@ -843,9 +884,9 @@ void StartControlCameraTask(void const *argument)
   for (;;)
   {
     EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
-                                              CAMERA_BIT,
-                                              pdTRUE, pdFALSE, portMAX_DELAY);
-    
+                                             CAMERA_BIT,
+                                             pdTRUE, pdFALSE, portMAX_DELAY);
+
     if (uxBits & CAMERA_BIT)
     {
       // Control Camera
@@ -865,10 +906,26 @@ void StartControlCameraTask(void const *argument)
 void startps2Control(void const *argument)
 {
   /* USER CODE BEGIN startps2Control */
+#if DEBUG_USER
+  vTaskDelete(receiveDataSpiHandle);
+  vTaskDelete(situationHandle);
+  vTaskDelete(controlSteeringHandle);
+  vTaskDelete(controlSpeedingHandle);
+  vTaskDelete(getDistance_SR0Handle);
+  vTaskDelete(controlCameraTaHandle);
+  vTaskDelete(getDataIMUHandle);
+  HAL_SPI_DeInit(&hspi1);
+#else
+  
+  vTaskDelete(ps2ControlHandle);
+  HAL_SPI_DeInit(&hspi3);
+  HAL_SPI_Receive_IT(&hspi1, &rx_buff, 1);
+#endif
   /* Infinite loop */
   for (;;)
   {
-    osDelay(1);
+    PS2_Data(GPIOD, GPIO_PIN_2, &hspi3, steering_motor_p, bldc_motor_0);
+    osDelay(10);
   }
   /* USER CODE END startps2Control */
 }
@@ -890,7 +947,7 @@ void StartreceiveDataSpi(void const *argument)
     {
       SPI_Handle_Data();
     }
-    
+
     osDelay(1);
   }
   /* USER CODE END StartreceiveDataSpi */
@@ -917,7 +974,7 @@ void StartgetDistance_SR04(void const *argument)
     // sr04_1->get_distance(sr04_1);
     // sr04_2->get_distance(sr04_2);
     // sr04_3->get_distance(sr04_3);
-    if (sr04_0->get_distance(sr04_0) < DISTANCE_BARRIE)
+    if (sr04_0->get_distance(sr04_0) > DISTANCE_BARRIER)
     {
       HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 1);
       __HAL_SPI_ENABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
@@ -928,7 +985,30 @@ void StartgetDistance_SR04(void const *argument)
       HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 0);
       __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
     }
-    
+
+    if (state_sr04.state_right == 1)
+    {
+      if (sr04_1->get_distance(sr04_1) > DISTANCE_BESIDE_BARRIER)
+      {
+
+        state_sr04.state_right = 0;
+        HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 0);
+        __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+        CalculateGyroAngle(&Angle, imu_9250_p);
+        yaw_angle_init = Angle.gyro_yaw;
+        steering_motor_p->duty_steering = DUTY_CYCLE_MAX_RIGHT;
+        xEventGroupSetBits(controlEvent, STEERING_NONE_CONTROL_BIT);
+        osDelay(10);
+        vTaskResume(getDataIMUHandle);
+      }
+      else
+      {
+        HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 1);
+        __HAL_SPI_ENABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+        xSemaphoreGive(receiveSemaphore);
+      }
+    }
+
     osDelay(1);
   }
   /* USER CODE END StartgetDistance_SR04 */
