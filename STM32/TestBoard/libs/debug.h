@@ -8,6 +8,6 @@
 #ifndef DEBUG_H_
 #define DEBUG_H_
 
-#define DEBUG_USER 1
+#define DEBUG_USER 0
 
 #endif /* DEBUG_H_ */

@@ -104,18 +104,17 @@ static float yaw_angle_init = 0;
 // Variable of SPI
 
 // data is receive from spi communication
-static uint8_t rx_buff = 0;
+uint8_t data_receiv;
 
 // array store data after receiving from spi communication
-static uint8_t spi_buff[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+static uint8_t spi_buff[150];
 
 // index in array
-static uint8_t position_spi = 0;
+uint8_t ii = 0;
 
 // flag notify complete receive data
 static uint8_t spi_flag = 0;
-uint8_t data_receiv;
-uint8_t ii = 4;
+
 uint8_t start_frame;
 
 /* USER CODE END PV */
@@ -150,40 +149,51 @@ extern void calibrateGyro(imu_9250_t *mpu9250, uint16_t numCalPoints);
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+        BaseType_t xhigherprioritytaskwoken = pdFALSE;
     if (hspi->Instance == hspi1.Instance)
     {
-        if (start_frame == 1)
-        {
-        	spi_buff[(ii++)] = data_receiv;
-        }
         HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
+//        if (start_frame == 1)
+//        {
+        	spi_buff[(ii++)] = data_receiv;
+//        	xTaskNotifyFromISR(receiveDataSpiHandle, 0, eNotifyAction, &xhigherprioritytaskwoken);
+
+//        	hspi->Instance->DR = 0;
+//        }
+    }
+    if(xhigherprioritytaskwoken)
+    {
+    	taskYIELD();
     }
 }
 
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (GPIO_Pin == GPIO_PIN_6)
+    if (GPIO_Pin == GPIO_PIN_1)
     {
-        if (((GPIOB->IDR) & (0b01000000)) == 0)
-            start_frame = 1;
-        else
-        {
+//        if (((GPIOC->IDR) & (0b00000010)) == 0)
+//            start_frame = 1;
+//        else
+//        {
+
             spi_flag++;
-            start_frame = 0;
-        }
-        ii = 0;
+//            start_frame = 0;
+//        }
+//        ii = 0;
     }
 }
 static inline void SPI_Handle_Data(void)
 {
-  if (spi_flag == 1)
-  {
-    // send queue
-    xQueueSend(queue_data, (void *)&rx_buff, 0);
-    spi_flag = 0;
-  }
+//  if (spi_flag == 1)
+//  {
+//    // send queue
+//    xQueueSend(queue_data, (void *)&rx_buff, 0);
+//    spi_flag = 0;
+//  }
 
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -226,7 +236,7 @@ int main(void)
   bldc_motor_0 = BLDC_MOTOR_Create(&htim3, TIM_CHANNEL_3);
   steering_motor_p = SERVO_MOTOR_Create(&htim1, TIM_CHANNEL_1);
   HAL_Delay(2000);
-  bldc_motor_0->speed = HIGH_SPEED;
+  bldc_motor_0->speed = MEDIUM_SPEED;
   bldc_motor_0->direction = COUNTER_CLOCKWISE;
   bldc_motor_0->set_speed(bldc_motor_0);
 
@@ -653,8 +663,8 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
@@ -669,6 +679,12 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PC0 PC1 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_INIT_BLDC_Pin TRIG_3_Pin TRIG_4_Pin */
   GPIO_InitStruct.Pin = LED_INIT_BLDC_Pin|TRIG_3_Pin|TRIG_4_Pin;
@@ -719,10 +735,16 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : SPI_CS_RAS_Pin */
   GPIO_InitStruct.Pin = SPI_CS_RAS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(SPI_CS_RAS_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
@@ -956,9 +978,9 @@ void startps2Control(void const * argument)
   HAL_SPI_DeInit(&hspi1);
 #else
   
-  vTaskDelete(ps2ControlHandle);
   HAL_SPI_DeInit(&hspi3);
-  HAL_SPI_Receive_IT(&hspi1, &rx_buff, 1);
+  HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
+  vTaskDelete(ps2ControlHandle);
 #endif
   /* Infinite loop */
   for (;;)
@@ -982,8 +1004,10 @@ void StartreceiveDataSpi(void const * argument)
   /* Infinite loop */
   for (;;)
   {
+//	  HAL_SPI_Receive_DMA(&hspi1, spi_buff, 5);
     if (xSemaphoreTake(receiveSemaphore, portMAX_DELAY))
     {
+//    	xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
       SPI_Handle_Data();
     }
 
@@ -1013,6 +1037,7 @@ void StartgetDistance_SR04(void const * argument)
     // sr04_1->get_distance(sr04_1);
     // sr04_2->get_distance(sr04_2);
     // sr04_3->get_distance(sr04_3);
+	  HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
     if (sr04_0->get_distance(sr04_0) > DISTANCE_BARRIER)
     {
       HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 1);
@@ -1022,7 +1047,7 @@ void StartgetDistance_SR04(void const * argument)
     else
     {
       HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 0);
-      __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+//      __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
     }
 
     if (state_sr04.state_right == 1)
@@ -1032,7 +1057,7 @@ void StartgetDistance_SR04(void const * argument)
 
         state_sr04.state_right = 0;
         HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 0);
-        __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+//        __HAL_SPI_DISABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
         CalculateGyroAngle(&Angle, imu_9250_p);
         yaw_angle_init = Angle.gyro_yaw;
         steering_motor_p->duty_steering = DUTY_CYCLE_MAX_RIGHT;
@@ -1043,7 +1068,7 @@ void StartgetDistance_SR04(void const * argument)
       else
       {
         HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 1);
-        __HAL_SPI_ENABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
+//        __HAL_SPI_ENABLE_IT(&hspi1, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
         xSemaphoreGive(receiveSemaphore);
       }
     }
