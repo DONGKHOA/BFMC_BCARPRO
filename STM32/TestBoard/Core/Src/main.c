@@ -59,9 +59,7 @@ TIM_HandleTypeDef htim4;
 
 osThreadId getDataIMUHandle;
 osThreadId situationHandle;
-osThreadId controlSpeedingHandle;
 osThreadId controlSteeringHandle;
-osThreadId controlCameraTaHandle;
 osThreadId ps2ControlHandle;
 osThreadId receiveDataSpiHandle;
 osThreadId getDistance_SR0Handle;
@@ -107,10 +105,10 @@ static float yaw_angle_init = 0;
 uint8_t data_receiv;
 
 // array store data after receiving from spi communication
-static uint8_t spi_buff[150];
+static uint8_t spi_buff[5];
 
 // index in array
-uint8_t ii = 0;
+uint16_t ii = 0;
 
 // flag notify complete receive data
 static uint8_t spi_flag = 0;
@@ -130,9 +128,7 @@ static void MX_TIM4_Init(void);
 static void MX_SPI3_Init(void);
 void StartgetDataIMU(void const * argument);
 void StartSituation(void const * argument);
-void StartControlSpeeding(void const * argument);
 void StartControlSteering(void const * argument);
-void StartControlCameraTask(void const * argument);
 void startps2Control(void const * argument);
 void StartreceiveDataSpi(void const * argument);
 void StartgetDistance_SR04(void const * argument);
@@ -156,6 +152,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 //        if (start_frame == 1)
 //        {
         	spi_buff[(ii++)] = data_receiv;
+        	if (ii == 49) ii = 0;
 //        	xTaskNotifyFromISR(receiveDataSpiHandle, 0, eNotifyAction, &xhigherprioritytaskwoken);
 
 //        	hspi->Instance->DR = 0;
@@ -280,17 +277,9 @@ int main(void)
   osThreadDef(situation, StartSituation, osPriorityAboveNormal, 0, 128);
   situationHandle = osThreadCreate(osThread(situation), NULL);
 
-  /* definition and creation of controlSpeeding */
-  osThreadDef(controlSpeeding, StartControlSpeeding, osPriorityNormal, 0, 128);
-  controlSpeedingHandle = osThreadCreate(osThread(controlSpeeding), NULL);
-
   /* definition and creation of controlSteering */
   osThreadDef(controlSteering, StartControlSteering, osPriorityBelowNormal, 0, 128);
   controlSteeringHandle = osThreadCreate(osThread(controlSteering), NULL);
-
-  /* definition and creation of controlCameraTa */
-  osThreadDef(controlCameraTa, StartControlCameraTask, osPriorityLow, 0, 128);
-  controlCameraTaHandle = osThreadCreate(osThread(controlCameraTa), NULL);
 
   /* definition and creation of ps2Control */
   osThreadDef(ps2Control, startps2Control, osPriorityHigh, 0, 128);
@@ -421,9 +410,9 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_SLAVE;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_16BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi1.Init.CLKPhase = SPI_PHASE_2EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
@@ -871,34 +860,6 @@ void StartSituation(void const * argument)
   /* USER CODE END StartSituation */
 }
 
-/* USER CODE BEGIN Header_StartControlSpeeding */
-/**
- * @brief Function implementing the controlSpeeding thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartControlSpeeding */
-void StartControlSpeeding(void const * argument)
-{
-  /* USER CODE BEGIN StartControlSpeeding */
-  /* Infinite loop */
-  for (;;)
-  {
-    EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
-                                             SPEEDING_BIT,
-                                             pdTRUE, pdFALSE, portMAX_DELAY);
-
-    if (uxBits & SPEEDING_BIT)
-    {
-      // Control Speeding
-      bldc_motor_0->set_speed(bldc_motor_0);
-    }
-
-    osDelay(1);
-  }
-  /* USER CODE END StartControlSpeeding */
-}
-
 /* USER CODE BEGIN Header_StartControlSteering */
 /**
  * @brief Function implementing the controlSteering thread.
@@ -931,32 +892,6 @@ void StartControlSteering(void const * argument)
   /* USER CODE END StartControlSteering */
 }
 
-/* USER CODE BEGIN Header_StartControlCameraTask */
-/**
- * @brief Function implementing the controlCameraTa thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartControlCameraTask */
-void StartControlCameraTask(void const * argument)
-{
-  /* USER CODE BEGIN StartControlCameraTask */
-  /* Infinite loop */
-  for (;;)
-  {
-    EventBits_t uxBits = xEventGroupWaitBits(controlEvent,
-                                             CAMERA_BIT,
-                                             pdTRUE, pdFALSE, portMAX_DELAY);
-
-    if (uxBits & CAMERA_BIT)
-    {
-      // Control Camera
-    }
-    osDelay(1);
-  }
-  /* USER CODE END StartControlCameraTask */
-}
-
 /* USER CODE BEGIN Header_startps2Control */
 /**
  * @brief Function implementing the ps2Control thread.
@@ -971,15 +906,13 @@ void startps2Control(void const * argument)
   vTaskDelete(receiveDataSpiHandle);
   vTaskDelete(situationHandle);
   vTaskDelete(controlSteeringHandle);
-  vTaskDelete(controlSpeedingHandle);
   vTaskDelete(getDistance_SR0Handle);
-  vTaskDelete(controlCameraTaHandle);
   vTaskDelete(getDataIMUHandle);
   HAL_SPI_DeInit(&hspi1);
 #else
   
   HAL_SPI_DeInit(&hspi3);
-  HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
+//  HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
   vTaskDelete(ps2ControlHandle);
 #endif
   /* Infinite loop */
@@ -1004,7 +937,6 @@ void StartreceiveDataSpi(void const * argument)
   /* Infinite loop */
   for (;;)
   {
-//	  HAL_SPI_Receive_DMA(&hspi1, spi_buff, 5);
     if (xSemaphoreTake(receiveSemaphore, portMAX_DELAY))
     {
 //    	xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
@@ -1037,7 +969,10 @@ void StartgetDistance_SR04(void const * argument)
     // sr04_1->get_distance(sr04_1);
     // sr04_2->get_distance(sr04_2);
     // sr04_3->get_distance(sr04_3);
-	  HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
+      HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
+
+//	  HAL_SPI_Receive_DMA(&hspi1, &data_receiv, 1);
+//	  spi_buff[ii++] = data_receiv;
     if (sr04_0->get_distance(sr04_0) > DISTANCE_BARRIER)
     {
       HAL_GPIO_WritePin(CONTROL_RAS_GPIO_Port, CONTROL_RAS_Pin, 1);
