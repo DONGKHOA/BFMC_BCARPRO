@@ -107,13 +107,11 @@ uint8_t data_receiv;
 // array store data after receiving from spi communication
 static uint8_t spi_buff[5];
 
-// index in array
-uint16_t ii = 0;
+// index in array, position of data
+uint8_t spi_datapos = 0;
 
 // flag notify complete receive data
 static uint8_t spi_flag = 0;
-
-uint8_t start_frame;
 
 /* USER CODE END PV */
 
@@ -145,18 +143,18 @@ extern void calibrateGyro(imu_9250_t *mpu9250, uint16_t numCalPoints);
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-        BaseType_t xhigherprioritytaskwoken = pdFALSE;
+    BaseType_t xhigherprioritytaskwoken = pdFALSE;
     if (hspi->Instance == hspi1.Instance)
     {
         HAL_SPI_Receive_IT(&hspi1, &data_receiv, 1);
-//        if (start_frame == 1)
-//        {
-        	spi_buff[(ii++)] = data_receiv;
-        	if (ii == 49) ii = 0;
-//        	xTaskNotifyFromISR(receiveDataSpiHandle, 0, eNotifyAction, &xhigherprioritytaskwoken);
 
-//        	hspi->Instance->DR = 0;
-//        }
+		spi_buff[(spi_datapos++)] = data_receiv;
+		if (spi_datapos == 5)
+		{
+			spi_datapos = 0;
+			spi_flag = 1;
+		}
+//      xTaskNotifyFromISR(receiveDataSpiHandle, 0, eNotifyAction, &xhigherprioritytaskwoken);
     }
     if(xhigherprioritytaskwoken)
     {
@@ -167,18 +165,15 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (GPIO_Pin == GPIO_PIN_1)
+    /*if (GPIO_Pin == GPIO_PIN_1)
     {
-//        if (((GPIOC->IDR) & (0b00000010)) == 0)
-//            start_frame = 1;
-//        else
-//        {
-
+        if (((GPIOC->IDR) & (0b00000010)) == 0)
+        else
+        {
             spi_flag++;
-//            start_frame = 0;
-//        }
-//        ii = 0;
-    }
+        }
+        spi_datapos = 0;
+    }*/
 }
 static inline void SPI_Handle_Data(void)
 {
