@@ -19,6 +19,8 @@
  *********************/
 
 #define DUTY_CYCLE_MIDDLE_ROTATION 50
+#define DUTY_CYCLE_RIGHT_ROTATION 60
+#define DUTY_CYCLE_LEFT_ROTATION 40
 
 /**********************
  *      TYPEDEFS

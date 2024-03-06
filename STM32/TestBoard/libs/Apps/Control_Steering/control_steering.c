@@ -94,6 +94,17 @@ static const float Steering_NB_p[] = { 0.1953f, -1.0000f };
 static const float Steering_PM_p[] = { 0.1316f, 0.6050f };
 static const float Steering_NM_p[] = { 0.1316f, -0.6050f };
 
+/**
+ * The function `Fuzzy_init` initializes a fuzzy logic control system for steering based on specified
+ * inputs, outputs, and membership functions.
+ * 
+ * @param control_p The `control_p` parameter is a pointer to a structure of type `control_steering_t`.
+ * This structure likely contains information related to controlling steering, such as steering angle,
+ * velocity, and other control parameters. The function `Fuzzy_init` initializes a fuzzy logic system
+ * for controlling steering based on the
+ * @param set_control_func The `set_control_func` parameter is a function pointer that points to a
+ * function which takes in the following parameters:
+ */
 void Fuzzy_init(control_steering_t * const control_p,
 				uint32_t (*set_control_func)(control_steering_t *const control_p, float distance, uint32_t duty_speed))
 {
@@ -136,7 +147,25 @@ void Fuzzy_init(control_steering_t * const control_p,
 
 }
 
-uint32_t CONTROL_STEERING_Set_Control(control_steering_t *const control_p, float distance, uint32_t bldc_motor_duty)
+/**
+ * The function `CONTROL_STEERING_Set_Control` sets control parameters based on input values and fuzzy
+ * logic, then calculates and returns a control output value.
+ * 
+ * @param control_p The `control_p` parameter is a pointer to a structure of type `control_steering_t`.
+ * This structure likely contains members for input and output values related to controlling steering.
+ * The function `CONTROL_STEERING_Set_Control` sets the input values based on the `bldc_motor_duty`
+ * @param distance The `distance` parameter in the `CONTROL_STEERING_Set_Control` function represents
+ * the distance value that is used to calculate the control input for steering. It is divided by the
+ * `DISTANCE_GAIN` constant before being assigned to `control_p->input[0]`. This distance value likely
+ * represents
+ * @param bldc_motor_duty The `bldc_motor_duty` parameter is an input value representing the duty cycle
+ * of a BLDC motor. The function sets the control input based on different values of `bldc_motor_duty`
+ * using a switch-case statement. The control input is then calculated based on the distance and
+ * 
+ * @return The function `CONTROL_STEERING_Set_Control` returns a `uint32_t` value, which is the output
+ * of the control calculation performed in the function.
+ */
+uint32_t CONTROL_STEERING_Set_Control(control_steering_t *const control_p, float distance, uint32_t bldc_motor_duty   )
 {
    switch (bldc_motor_duty)
    {
@@ -153,9 +182,29 @@ uint32_t CONTROL_STEERING_Set_Control(control_steering_t *const control_p, float
    control_p->input[0] = distance / DISTANCE_GAIN;
    Fuzzy_run(control_p->input, &(control_p->output));
    control_p->output = control_p->output * DUTY_GAIN + MIDDLE_DUTY;
+   if (control_p->output > 75)
+   {
+        return 75;
+   }
+   else if (control_p->output < 25)
+   {
+        return 25;
+   }
    return (uint32_t) control_p->output;
 }
 
+/**
+ * The function Fuzzy_run sets crisp inputs, fuzzifies them, performs inference, defuzzifies the
+ * output, and retrieves the crisp outputs.
+ * 
+ * @param inputs The `inputs` parameter in the `Fuzzy_run` function is a pointer to an array of
+ * floating-point values. It seems to represent the input variables for a fuzzy logic system. In the
+ * code snippet provided, the inputs are being set for two variables: `Angle` and `Velocity`. The
+ * @param outputs The `outputs` parameter in the `Fuzzy_run` function is a pointer to an array of
+ * floats where the crisp outputs of the fuzzy logic system will be stored. In this specific code
+ * snippet, the crisp output for the "Steering" variable is obtained from the fuzzy logic system and
+ * stored in
+ */
 void Fuzzy_run(float *inputs, float *outputs)
 {
     /* Set the crips inputs */
