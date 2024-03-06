@@ -15,14 +15,14 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
     {
     case FORWARD:
         /* code */
-        motor_p->speed = HIGH_SPEED;
+        motor_p->speed = LOW_SPEED;
         motor_p->direction = COUNTER_CLOCKWISE;
         servo_p->set_steering(servo_p);
         motor_p->set_speed(motor_p);
         break;
     case BACKWARD:
         /* code */
-        motor_p->speed = HIGH_SPEED;
+        motor_p->speed = MEDIUM_SPEED;
         motor_p->direction = CLOCKWISE;
         servo_p->set_steering(servo_p);
         motor_p->set_speed(motor_p);
@@ -65,20 +65,12 @@ void PS2_Data(GPIO_TypeDef *gpio, uint16_t pin, SPI_HandleTypeDef *hspi,
         if (state_set == 2)
         {
             servo_p->duty_steering -= 5;
-            if (servo_p->duty_steering < 25)
-            {
-            	servo_p->duty_steering = 25;
-            }
             servo_p->set_steering(servo_p);
             state_set = 0;
         }
         if (state_set == 20)
         {
             servo_p->duty_steering += 5;
-            if (servo_p->duty_steering > 75)
-            {
-            	servo_p->duty_steering = 75;
-            }
             servo_p->set_steering(servo_p);
             state_set = 0;
         }

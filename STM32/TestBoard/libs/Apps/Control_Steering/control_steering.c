@@ -165,7 +165,7 @@ void Fuzzy_init(control_steering_t * const control_p,
  * @return The function `CONTROL_STEERING_Set_Control` returns a `uint32_t` value, which is the output
  * of the control calculation performed in the function.
  */
-uint32_t CONTROL_STEERING_Set_Control(control_steering_t *const control_p, float distance, uint32_t bldc_motor_duty)
+uint32_t CONTROL_STEERING_Set_Control(control_steering_t *const control_p, float distance, uint32_t bldc_motor_duty   )
 {
    switch (bldc_motor_duty)
    {

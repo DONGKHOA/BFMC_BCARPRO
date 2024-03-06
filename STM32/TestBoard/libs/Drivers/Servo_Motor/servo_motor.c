@@ -19,6 +19,8 @@
 void SERVO_MOTOR_Set_Steering(servo_motor_t *const servo_p)
 {
     HAL_TIM_PWM_Start(servo_p->timer_p, servo_p->timChannel);
+    if(servo_p->duty_steering > DUTY_CYCLE_MAX_RIGHT)	servo_p->duty_steering = DUTY_CYCLE_MAX_RIGHT;
+    if(servo_p->duty_steering < DUTY_CYCLE_MAX_LEFT)	servo_p->duty_steering = DUTY_CYCLE_MAX_LEFT;
     
     switch (servo_p->timChannel)
     {

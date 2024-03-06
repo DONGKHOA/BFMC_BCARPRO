@@ -21,13 +21,10 @@
  *********************/
 
 #define DUTY_CYCLE_MIDDLE_STEERING 50
-<<<<<<< HEAD
 #define DUTY_CYCLE_MAX_LEFT 25
 #define DUTY_CYCLE_MAX_RIGHT 75
-=======
 #define DUTY_CYCLE_MAX_LEFT         25
 #define DUTY_CYCLE_MAX_RIGHT        75
->>>>>>> 90894345eeb9c39fe1115a54c99523f7a408299b
 
 /**********************
  *      TYPEDEFS
